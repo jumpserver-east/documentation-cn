@@ -21,6 +21,7 @@
 
         For more commands, you can enter <span style="color: red;">jmsctl --help</span> to view help information.
         ```
+        
         </div>
     === "其他地区"
         <div class="termy">

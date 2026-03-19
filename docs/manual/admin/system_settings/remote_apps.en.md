@@ -68,3 +68,9 @@
 | Auto Create Account | Accounts created by this option are used to connect to published applications |
 | Create Account Count | Number of public accounts to create |
 | Core Service Address | Communication address between the application publisher's Agent and JumpServer Core component service |
+
+!!! warn "Important Note"
+    The `core_api` parameter must be set to the bastion host address, in the format: `http://bastion-host-ip:port`
+
+!!! danger "Warning"
+    The `core_api` parameter must point to the bastion host address, otherwise the system will not function properly.

@@ -68,3 +68,10 @@
 | Auto Create Account | Accounts created by this option are used to connect to published applications |
 | Create Account Count | Number of public accounts to create |
 | Core Service Address | Communication address between the application publisher's Agent and JumpServer Core component service |
+
+
+!!! warning "Important Note"
+    The core_api parameter requires the JumpServer address, in the format: `http://JumpServer_IP:Port`
+
+!!! danger "Warning"
+    The core_api parameter must point to the JumpServer address; otherwise, the system will not function properly.

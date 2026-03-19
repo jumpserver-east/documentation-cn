@@ -43,6 +43,7 @@
     - 创建应用发布机时添加 WinRM 协议即可。如果同时存在 SSH 协议，JumpServer 将优先选择 SSH。
     
 ![remoteapp18](../../../img/V4_RemoteApp7.png)
+!!! warning "core服务地址需填写堡垒机IP"
 
 #### OpenSSH
 

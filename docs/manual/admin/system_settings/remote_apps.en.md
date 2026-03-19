@@ -68,3 +68,6 @@
 | Auto Create Account | Accounts created by this option are used to connect to published applications |
 | Create Account Count | Number of public accounts to create |
 | Core Service Address | Communication address between the application publisher's Agent and JumpServer Core component service |
+
+!!! warning ""
+    Please ensure that the Core service address is the JumpServer host address.

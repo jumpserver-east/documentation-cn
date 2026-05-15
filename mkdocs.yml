@@ -66,6 +66,8 @@ nav:
     - ticket: dev/api/ticket/ticket.md
   - 健康检查: 
     - health: dev/api/health/health.md
+  - 审计:
+    - audit-query: dev/api/audits/audit_query.md
   - 终端:
     - metrics: dev/api/terminal/metrics.md
 

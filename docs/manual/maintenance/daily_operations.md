@@ -275,6 +275,34 @@ JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需
     pg_dump -U $登录用户 -h localhost -d jumpserver -f jumpserver-$(date +"%Y-%m-%d").dump
     ```
 
+### 3.3 定时自动备份
+
+生产环境建议通过 crontab 定时任务实现数据库自动备份，避免遗漏手动备份。
+
+```bash
+# 编辑当前用户的定时任务
+crontab -e
+```
+
+添加以下内容（备份频率与保留天数请结合业务场景调整）：
+
+```bash
+# 每日凌晨 2 点自动备份 JumpServer 数据库（jmsctl 的绝对路径可通过 which jmsctl 确认）
+0 2 * * * /usr/local/bin/jmsctl backup_db >> /var/log/jmsctl_backup.log 2>&1
+
+# 每日凌晨 3 点清理 30 天前的旧备份文件（备份目录以实际 VOLUME_DIR 为准）
+0 3 * * * find /data/jumpserver/db_backup/ -name "*.sql" -mtime +30 -delete
+
+# 每周日凌晨 4 点备份核心配置文件目录
+0 4 * * 0 tar -czf /data/jumpserver/db_backup/jumpserver-config-$(date +\%F).tar.gz /opt/jumpserver/config/
+```
+
+**备份策略建议：**
+
+- 备份文件默认保存在本机 `/data/jumpserver/db_backup/` 目录下，为防止服务器整机故障导致备份与数据同时丢失，建议将备份文件定期同步至异机（如通过 `scp`/`rsync` 同步至备份服务器，或上传至对象存储）；
+- 定期（如每季度）使用备份文件进行恢复演练，确认备份文件可用；
+- 除数据库外，`/opt/jumpserver/config/` 目录（含 `config.txt`、证书等）也需纳入备份范围。
+
 ## 4 数据库恢复
 
 当数据库节点宕机、升级失败或其他场景需要回滚数据库时，可参考以下操作。

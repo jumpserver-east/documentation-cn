@@ -19,8 +19,8 @@ jmsctl status
 **方案二：全部重启**
 
 ```bash
-# 进入安装包目录
-cd /opt/jumpserver-ee-{{ jumpserver.tag }}-x86_64
+# 进入安装包解压目录（以实际解压路径为准）
+cd <安装包解压路径>/jumpserver-ee-{{ jumpserver.tag }}-x86_64
 # 停止 JumpServer 所有服务
 ./jmsctl.sh down
 # 检查是否有未停止的容器
@@ -58,7 +58,7 @@ docker rm ID
 ## 3 服务器宕机
 
 1. 优先恢复服务器硬件/系统，确保服务器能正常运行；
-2. 检查数据库状态（内置/外置），按照 [数据库故障](./crash_recovery.md) 的处理方式恢复数据库；
+2. 检查数据库状态（内置/外置），按照 [数据库故障](#2-数据库故障) 的处理方式恢复数据库；
 3. 启动相关依赖服务：
  ```bash
  # 若使用 Keepalived，启动 Keepalived 服务

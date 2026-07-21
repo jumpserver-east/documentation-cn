@@ -20,6 +20,8 @@ JumpServer 的核心日志存放在 `/data/jumpserver/core/data/logs`。
 | `beat.log` | 定时任务的日志 |
 | `celery_ansible.log` | 异步任务 ansible 队列下的任务日志 |
 | `celery_default.log` | 异步任务默认队列下的任务日志 |
+| `celery.log` | celery 组件的日志 |
+| `daphne.log` | Django 的一部分，主要用来支持 websocket |
 | `drf_exception.log` | 使用 DRF 框架抛出的异常信息 |
 | `flower.log` | 作业中心的任务监控组件日志 |
 | `gunicorn.log` | 用来记录请求的日志 |

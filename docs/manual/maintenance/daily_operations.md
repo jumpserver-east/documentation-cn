@@ -193,6 +193,57 @@ JumpServer 在运行过程中，修改其他配置文件中的所有参数，均
 
 > 注意:数据库更改操作建议提前备份数据。
 
+### 2.4 配置与更换 HTTPS 证书
+
+#### 首次开启 HTTPS
+
+1. 将证书文件上传至 `/opt/jumpserver/config/nginx/cert/` 目录（该目录为默认映射目录，不可修改）。证书文件一般命名为 `server.crt`，私钥文件命名为 `server.key`，文件名需与配置文件中填写的名称保持一致；
+
+2. 停止 JumpServer 服务：
+
+    ```bash
+    jmsctl stop
+    ```
+
+3. 修改配置文件 `/opt/jumpserver/config/config.txt` 中的 HTTPS 配置段，取消注释并按实际情况填写：
+
+    ```ini
+    HTTPS_PORT=443
+    SERVER_NAME=your_domain_name   # 替换为实际使用的域名或 IP 地址
+    SSL_CERTIFICATE=server.crt
+    SSL_CERTIFICATE_KEY=server.key
+    ```
+
+4. 启动 JumpServer 服务并验证：
+
+    ```bash
+    jmsctl start
+    # 检查 jms_web 容器已映射 443 端口
+    docker ps -a
+    ```
+
+    浏览器通过 `https://` 方式访问 JumpServer 登录页，无安全风险提示即证书生效。
+
+#### 证书到期更换
+
+新证书与旧证书使用相同文件名时，`config.txt` 无需修改，可在不停止 JumpServer 服务的情况下平滑更换：
+
+```bash
+# 1. 进入证书目录，备份旧证书
+cd /opt/jumpserver/config/nginx/cert/
+mv server.crt server.crt.backup
+mv server.key server.key.backup
+
+# 2. 上传新证书至该目录，并重命名为与配置文件一致的名称
+mv <新证书文件>.crt server.crt
+mv <新私钥文件>.key server.key
+
+# 3. 进入 web 容器平滑重载 nginx
+docker exec -it jms_web nginx -s reload
+```
+
+刷新浏览器页面，查看证书信息已更新即完成更换。
+
 ## 3 数据库备份
 
 JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需要定时对 JumpServer 数据库进行备份。

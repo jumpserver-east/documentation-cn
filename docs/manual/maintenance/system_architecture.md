@@ -4,7 +4,7 @@
 
 JumpServer 堡垒机采用微服务架构设计。JumpServer 服务由 Docker 承载，不同的功能模块在不同的容器上面运行；通过 Docker-Compose 以及 jmsctl 管理脚本编排整个 JumpServer 服务的运行与维持不同功能模块之间的依赖关系。
 
-!!! tips ""
+!!! tip ""
     企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar`  [jumpserver-ee-系统版本-系统架构]
 
 ## 2 依赖组件

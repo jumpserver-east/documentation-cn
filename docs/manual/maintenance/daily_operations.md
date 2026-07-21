@@ -1,3 +1,5 @@
+# 日常基本操作
+
 ## 1 命令行工具 jmsctl
 
 JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同时，JumpServer 支持命令行工具 `jmsctl`。

@@ -1,3 +1,4 @@
+# 故障恢复操作
 
 !!! info "企业版客户出现服务故障建议在企业客户支持群中联系客户成功团队获取及时帮助。"
 
@@ -65,7 +66,7 @@ docker rm ID
  # 启动 JumpServer 服务
  jmsctl start
  ```
-1. 通过 `jmsctl status` 检查服务状态。
+4. 通过 `jmsctl status` 检查服务状态。
 
 ## 4 安全建议
 

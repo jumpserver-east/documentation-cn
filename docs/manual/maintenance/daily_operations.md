@@ -37,7 +37,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     ```ini
     # JumpServer configuration file example.
     # 如果不了解用途可以跳过修改此配置文件, 系统会自动填入
-    # 完整参数文档 https://docs.jumpserver.org/zh/v3/guide/env/
+    # 完整参数文档参考本手册《系统参数说明》章节
 
     ################################## 镜像配置 ###################################
     # 国内连接 docker.io 会超时或下载速度较慢, 开启此选项使用华为云镜像加速
@@ -56,13 +56,13 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # 加密密钥, 迁移请保证 SECRET_KEY 与旧环境一致, 请勿使用特殊字符串
     # (*) Warning: Keep this value secret.
     # (*) 勿向任何人泄露 SECRET_KEY
-    SECRET_KEY=NzhhNzNiNDItNmE0OC0wNTc0LTZlYzYtMzk1Mzk2ZDNhNjQ5  # 系统用来加密解密的key
+    SECRET_KEY=********************************  # 系统用来加密解密的key（此处为示意值，以实际生成为准）
 
     # 组件向 core 注册使用的 token, 迁移请保持 BOOTSTRAP_TOKEN 与旧环境一致,
     # 请勿使用特殊字符串
     # (*) Warning: Keep this value secret.
     # (*) 勿向任何人泄露 BOOTSTRAP_TOKEN
-    BOOTSTRAP_TOKEN=NzhhNzNiNDItNmE0OC0wNTc0    # 其他组件用来向JumpServer注册使用的token
+    BOOTSTRAP_TOKEN=****************    # 其他组件用来向JumpServer注册使用的token（此处为示意值，以实际生成为准）
 
     # 日志等级 INFO, WARN, ERROR
     LOG_LEVEL=ERROR  # 日志级别，可以调整为DEBUG模式，输入更详细的日志信息，需注意产生的日志大小
@@ -82,17 +82,17 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     DB_HOST=postgresql  # 数据库的连接地址，当地址为 postgresql 时，默认拉起 PostgreSQL 容器
     DB_PORT=5432   # 数据库的连接端口
     DB_USER=postgres    # 数据库的连接用户
-    DB_PASSWORD=1a703974685f00c6622fa5ea87  # 数据库的连接用户密码
+    DB_PASSWORD=********************  # 数据库的连接用户密码（此处为示意值，以实际生成为准）
     DB_NAME=jumpserver     # 数据库的连接数据库，即写入JumpServer数据的数据库
 
-    # 如果外置 MySQL 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v3/installation/security_setup/mysql_ssl/
+    # 如果外置 MySQL 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v4/installation/security_setup/mysql_ssl/
     # DB_USE_SSL=true
 
     ################################# Redis 配置 ##################################
     # 外置 Redis 需要请输入正确的 Redis 信息, 内置 Redis 系统会自动处理
     REDIS_HOST=redis  # Redis 数据库的连接地址，当地址为 redis 时，默认拉起 Redis 容器
     REDIS_PORT=6379  # Redis数据库的连接端口
-    REDIS_PASSWORD=NzhhNzNiNDItNmE0OC0wNTc0LT   # Redis数据库的连接密码
+    REDIS_PASSWORD=****************   # Redis数据库的连接密码（此处为示意值，以实际生成为准）
 
     # 如果使用外置 Redis Sentinel, 请手动填写下面内容
     # REDIS_SENTINEL_HOSTS=mymaster/192.168.100.1:26379,192.168.100.1:26380,192.168.100.1:26381
@@ -100,7 +100,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # REDIS_PASSWORD=your_redis_password
     # REDIS_SENTINEL_SOCKET_TIMEOUT=5
 
-    # 如果外置 Redis 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v3/installation/security_setup/redis_ssl/
+    # 如果外置 Redis 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v4/installation/security_setup/redis_ssl/
     # REDIS_USE_SSL=true
 
     ################################## 访问配置 ###################################
@@ -108,7 +108,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     HTTP_PORT=80    # JumpServer的Web界面访问端口
 
     ################################# HTTPS 配置 #################################
-    # 参考 https://docs.jumpserver.org/zh/v3/installation/proxy/ 配置
+    # 参考 https://docs.jumpserver.org/zh/v4/installation/proxy/ 配置
     # HTTPS_PORT=443
     # SERVER_NAME=your_domain_name
     # SSL_CERTIFICATE=your_cert
@@ -135,7 +135,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # DOMAINS="demo.jumpserver.org:443"
     # DOMAINS="172.17.200.191:80"
     # DOMAINS="demo.jumpserver.org:443,172.17.200.191:80"
-    DOMAINS="10.1.12.47:80"
+    DOMAINS="192.168.1.100:80"
 
     # 配置不需要启动的组件, 默认所有组件都会开启, 如果不需要某个组件可以通过设置 {组件名称}_ENABLED 为 0 关闭
     # CORE_ENABLED=0
@@ -170,7 +170,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     USE_LB=1
 
     # 当前运行的 JumpServer 版本号, 安装和升级完成后自动生成
-    CURRENT_VERSION=v4.10.6
+    CURRENT_VERSION={{ jumpserver.tag }}
     ```
 
 > 其他参数（默认参数或其他可自行添加的参数）请参考：[系统参数说明](env.md)

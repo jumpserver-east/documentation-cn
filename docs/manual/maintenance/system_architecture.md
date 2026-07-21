@@ -5,7 +5,7 @@
 JumpServer 堡垒机采用微服务架构设计。JumpServer 服务由 Docker 承载，不同的功能模块在不同的容器上面运行；通过 Docker-Compose 以及 jmsctl 管理脚本编排整个 JumpServer 服务的运行与维持不同功能模块之间的依赖关系。
 
 !!! tip ""
-    企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar`  [jumpserver-ee-系统版本-系统架构]
+    企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar.gz`  [jumpserver-ee-系统版本-系统架构]
 
 ## 2 依赖组件
 
@@ -31,7 +31,7 @@ JumpServer 堡垒机依赖组件如下：
 
 ## 3 文件夹用途介绍
 
-JumpServer 的默认安装路径为 `/data/jumpserver`，具体的环境安装路径可通过查看配置文件获取。具体命令如下：
+JumpServer 的安装配置目录为 `/opt/jumpserver`，数据持久化目录（VOLUME_DIR）默认为 `/data/jumpserver`。具体环境的持久化目录可通过查看配置文件获取。具体命令如下：
 
 ```bash
 cat /opt/jumpserver/config/config.txt | grep VOLUME_DIR

@@ -2,7 +2,7 @@
 
 ## 1 系统组件日志
 
-JumpServer 的默认安装地址为 `/data/jumpserver`，具体安装地址可执行以下命令查看：
+JumpServer 的数据持久化目录（VOLUME_DIR）默认为 `/data/jumpserver`，具体路径可执行以下命令查看：
 
 ```bash
 cat /opt/jumpserver/config/config.txt | grep VOLUME_DIR

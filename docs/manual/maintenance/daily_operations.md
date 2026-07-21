@@ -11,7 +11,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
 ### 1.1 命令使用格式
 
 - `jmsctl [COMMAND]`
-- `./jmsctl [COMMAND]` (需切换至安装包解压目录下执行)
+- `./jmsctl.sh [COMMAND]` (需切换至安装包解压目录下执行)
 
 ### 1.2 命令参数详解
 | 命令 | 说明 |
@@ -79,7 +79,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # 外置数据库需要输入正确的数据库信息, 内置数据库系统会自动处理
     #
     DB_ENGINE=postgresql  # 指定数据库类型，可选mysql/postgresql
-    DB_HOST=postgresql  # 数据库的连接地址，当地址为postgresql时。默认拉起PostgreSQL容器。
+    DB_HOST=postgresql  # 数据库的连接地址，当地址为 postgresql 时，默认拉起 PostgreSQL 容器
     DB_PORT=5432   # 数据库的连接端口
     DB_USER=postgres    # 数据库的连接用户
     DB_PASSWORD=1a703974685f00c6622fa5ea87  # 数据库的连接用户密码
@@ -90,7 +90,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
 
     ################################# Redis 配置 ##################################
     # 外置 Redis 需要请输入正确的 Redis 信息, 内置 Redis 系统会自动处理
-    REDIS_HOST=redis  # Redis数据库的连接地址，当地址为Redis时，默认拉起Redis容器。
+    REDIS_HOST=redis  # Redis 数据库的连接地址，当地址为 redis 时，默认拉起 Redis 容器
     REDIS_PORT=6379  # Redis数据库的连接端口
     REDIS_PASSWORD=NzhhNzNiNDItNmE0OC0wNTc0LT   # Redis数据库的连接密码
 
@@ -235,20 +235,24 @@ JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需
 !!! tip ""
     ```bash
     jmsctl restore_db <backup_file_path>  
-    # 文件路径参数无法使用相对路径。被封文件默认位置在 /data/jumpserver/db_backup 目录下。
+    # 文件路径参数无法使用相对路径。备份文件默认位置在 /data/jumpserver/db_backup 目录下。
     ```
 
 ### 4.2 手动恢复命令
-#### MySQL 单节点数据库回滚
 
-> 注：内置数据库需要进入容器执行
+> 注：
+>
+> 1. 手动恢复主要适用于外置数据库场景；内置数据库场景建议优先使用 `jmsctl restore_db` 命令恢复（见 4.1）。
+> 2. 内置数据库如需手动恢复，执行 `jmsctl stop` 后数据库容器也会停止，需先单独启动数据库容器（内置 PostgreSQL 为 `docker start jms_postgresql`，内置 MySQL 为 `docker start jms_mysql`），再进入容器执行恢复命令。
+
+#### MySQL 单节点数据库回滚
 
 !!! tip ""
     ```bash
-    # 1. 停止 JumpServer 服务
+    # 1. 停止 JumpServer 服务（在 JumpServer 节点执行，避免恢复期间数据写入）
     jmsctl stop
     
-    # 2. 恢复数据库
+    # 2. 恢复数据库（在数据库服务器上执行；内置数据库需进入容器执行）
     mysql -u$登录用户 -p$登录用户密码 jumpserver < /path/to/backup/jumpserver-YYYY-MM-DD.sql
     
     # 3. 启动 JumpServer 服务
@@ -257,14 +261,12 @@ JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需
 
 #### PostgreSQL 单节点数据库回滚
 
-> 注：内置数据库需要进入容器执行
-
 !!! tip ""
     ```bash
-    # 1. 停止 JumpServer 服务
+    # 1. 停止 JumpServer 服务（在 JumpServer 节点执行，避免恢复期间数据写入）
     jmsctl stop
     
-    # 2. 恢复数据库
+    # 2. 恢复数据库（在数据库服务器上执行；内置数据库需进入容器执行）
     psql -U $登录用户 -h localhost -d jumpserver -f /path/to/backup/jumpserver-YYYY-MM-DD.dump
     
     # 3. 启动 JumpServer 服务

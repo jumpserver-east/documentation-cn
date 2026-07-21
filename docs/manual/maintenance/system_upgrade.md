@@ -17,7 +17,7 @@ JumpServer 升级服务采用一键快速升级方式，此过程会重启整个
 
 !!! tip ""
     - 注意：企业版安装包与社区版安装包不同，请勿混用。
-    - 企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar`  [jumpserver-ee-系统版本-系统架构]
+    - 企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar.gz`  [jumpserver-ee-系统版本-系统架构]
 
 下载完成后，需要上传安装包至服务器后台。
 
@@ -57,7 +57,7 @@ cd jumpserver-ee-{{ jumpserver.tag }}-x86_64/
 
 !!! tip ""
     - 注意：企业版安装包与社区版安装包不同，请勿混用。
-    - 企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar`  [jumpserver-ee-系统版本-系统架构]
+    - 企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar.gz`  [jumpserver-ee-系统版本-系统架构]
 
 下载完成后，需要上传安装包至各个节点服务器后台。
 

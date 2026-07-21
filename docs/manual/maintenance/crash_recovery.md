@@ -42,13 +42,13 @@ docker rm ID
  jmsctl backup_db
  ```
 
-2. 登录数据库服务器，停止 JumpServer 服务（避免数据写入冲突）：
+2. 在 JumpServer 节点停止 JumpServer 服务（避免数据写入冲突）：
 
  ```bash
  jmsctl stop
  ```
 
-3. 检查数据库具体故障原因（如服务未启动、配置错误、磁盘空间不足等），针对性修复；
+3. 登录数据库服务器，检查数据库具体故障原因（如服务未启动、配置错误、磁盘空间不足等），针对性修复；
 4. 修复完成后，启动数据库服务，再重启 JumpServer：
 
  ```bash

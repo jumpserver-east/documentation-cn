@@ -43,6 +43,8 @@ JumpServer 的核心日志存放在 `/data/jumpserver/core/data/logs`。
 | Facelive | `/data/jumpserver/facelive/data/logs` |
 | Nec | `/data/jumpserver/nec/data/logs` |
 
+> 说明：Web 页面的访问日志（nginx 访问日志）位于 Web 组件的日志目录下，排查页面访问类问题时可结合查看。
+
 ## 2 Docker 日志查看
 
 **示例：查看 core 容器的后 100 行日志**
@@ -60,3 +62,37 @@ docker logs -f [Container ID]
 # 通过容器名称查看
 docker logs -f [Container name]
 ```
+
+**按时间范围过滤日志**
+
+```bash
+# 查看最近 30 分钟的日志
+docker logs --since 30m jms_core
+
+# 查看指定时间点之后的日志
+docker logs --since "2026-07-21T10:00:00" jms_core
+
+# 组合使用：查看最近 1 小时内的后 200 行日志
+docker logs --since 1h --tail 200 jms_core
+```
+
+## 3 调整日志级别
+
+JumpServer 默认日志级别由 `config.txt` 中的 `LOG_LEVEL` 参数控制（可选 `DEBUG`、`INFO`、`WARN`、`ERROR`）。排查问题时可临时调整为 `DEBUG` 以输出更详细的日志信息。
+
+**操作步骤：**
+
+1. 修改 `/opt/jumpserver/config/config.txt` 中的日志级别：
+
+    ```ini
+    LOG_LEVEL=DEBUG
+    ```
+
+2. 重启 JumpServer 服务使配置生效：
+
+    ```bash
+    jmsctl restart
+    ```
+
+!!! warning "注意"
+    `DEBUG` 级别日志量较大，会明显加快磁盘空间消耗。问题排查结束后，请及时将 `LOG_LEVEL` 调回原级别并重启服务。

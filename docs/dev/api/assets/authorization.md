@@ -111,3 +111,16 @@ if __name__ == "__main__":
     result = get_user_perm_assets(USER_ID)
     print(json.dumps(result, indent = 2, ensure_ascii = False))
 ```
+
+- **使用案例：**
+
+场景：运维平台在为工程师张三（zhangsan）开通堡垒机入口前，先核对其当前已被授权的 Linux 生产主机范围，确认仅包含 web 类资产、无越权授权。
+
+```sh
+# 张三的用户 ID 可先通过 /api/v1/users/users/?username=zhangsan 查询获取
+curl -X GET 'https://localhost/api/v1/perms/users/3f2b9d6c-1a4e-4c58-9d2f-8e7a5b1c0d24/assets/?category=host&type=linux&search=web&is_active=true&limit=20&offset=0' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)

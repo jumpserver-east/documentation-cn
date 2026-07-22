@@ -30,7 +30,7 @@ ORG_ID = '00000000-0000-0000-0000-000000000002'
 def get_token(jms_url, username, password):
     url = jms_url + '/api/v1/authentication/auth/'
     data = {"username": username, "password": password}
-    r = requests.post(url, data=data)
+    r = requests.post(url, json=data)
     r.raise_for_status()
     return r.json()['token']
 

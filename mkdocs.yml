@@ -63,6 +63,14 @@ nav:
     - 账号备份: dev/api/pam/account_backup.md
   - 工单:
     - 工单管理: dev/api/ticket/ticket.md
+  - 审计:
+    - 会话记录: dev/api/audits/sessions.md
+    - 命令记录: dev/api/audits/commands.md
+    - 文件传输记录: dev/api/audits/ftp_logs.md
+    - 作业日志: dev/api/audits/job_logs.md
+    - 登录日志: dev/api/audits/login_logs.md
+    - 操作日志: dev/api/audits/operate_logs.md
+    - 改密日志: dev/api/audits/password_change_logs.md
   - 健康检查:
     - 服务健康检查: dev/api/health/health.md
   - 终端:

@@ -1,4 +1,4 @@
-## /api/v1/users/groups/{id}/
+## /api/v1/users/groups/
 
 ### POST
 
@@ -18,7 +18,7 @@
 | 参数名 | 描述 | 可选值 |
 | --- | --- | --- |
 | name* | 类型：string，名称 | - |
-| users | 类型：string[]，用户 | - |
+| users | 类型：object[]，用户；每个元素包含 id（string）、name（string）、is_service_account（boolean） | - |
 
 > 注：带 * 的参数为必填项。
 - **返回参数：**
@@ -29,8 +29,7 @@
 | name | 类型：String，用户组名称 |  |
 | comment | 类型：String，备注 |  |
 | created_by | 类型：String，创建者 |  |
-| users | 类型：String[]，用户 |  |
-| users_amount | 类型：String，用户数量 |  |
+| users | 类型：Object[]，用户；每个元素包含 id（string）、name（string）、is_service_account（boolean） |  |
 | org_id | 类型：String，组织 |  |
 | org_name | 类型：String，组织名称 |  |
 | date_created | 类型：String，创建时间 |  |
@@ -94,6 +93,8 @@ def create_users_group():
 if __name__ == "__main__":
     create_users_group()
 ```
+
+## /api/v1/users/groups/{id}/
 
 ### DELETE
 

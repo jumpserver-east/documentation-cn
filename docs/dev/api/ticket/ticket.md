@@ -19,13 +19,12 @@
 | --- | --- | --- |
 | title* | 类型：String，工单标题 | - |
 | org_id* | 类型：String，组织 | - |
-| apply_node | 类型：String，申请节点id | 支持模糊搜索，最多显示10项 |
+| apply_nodes | 类型：Object[]（对象数组，每个元素含 id、name 字段），申请节点 | 支持模糊搜索，最多显示10项 |
 | apply_assets | 类型：string[]，申请资产id | 支持模糊搜索，最多显示10项 |
 | apply_accounts | 类型：String[]，申请账号id | "@ALL"：所有账号；"@SPEC"：指定账号；"@INPUT"：手动账号；"@USER"：同名账号 |
-| apply_actions* | 类型：Integer，动作 | 默认：all；可选值：[all, connect, upload_file, download_file, updownload, clipboard_copy, clipboard_paste, clipboard_copy_paste] |
-| is_active | 类型：Boolean，激活中 | true |
-| apply_date_start* | 类型：String(datetime)，开始日期 | - |
-| apply_date_expired* | 类型：String(datetime)，失效日期（原文“失效日志”应为笔误） | - |
+| apply_actions | 类型：String[]，动作 | 默认：[]；可选值：[connect, upload, download, copy, paste, delete, share] |
+| apply_date_start | 类型：String(datetime)，开始日期 | - |
+| apply_date_expired | 类型：String(datetime)，失效日期（原文“失效日志”应为笔误） | - |
 | comment | 类型：String，备注 | - |
 > 注：带 * 的参数为必填项。
 
@@ -65,7 +64,7 @@ curl -X POST 'https://localhost/api/v1/tickets/apply-asset-tickets/open/' \
     -d '{
         "title":"test_tickets_1",
         "apply_accounts":["@ALL"],
-        "apply_actions":["all"],
+        "apply_actions":["connect"],
         "org_id":"00000000-0000-0000-0000-000000000002",
         "apply_assets":["b4f205af-4353-49ef-befa-ff9095d52a27"],
         "apply_date_start":"2023-03-28T02:10:23.245Z",
@@ -103,7 +102,7 @@ def apply_asset_tickets():
     data = {
         "title":"test_tickets_1",
         "apply_accounts":["@ALL"],
-        "apply_actions":["all"],
+        "apply_actions":["connect"],
         "org_id": ORG_ID,
         "apply_date_start":"2025-01-01T00:00:00.245Z",
         "apply_date_expired":"2095-01-01T00:00:00.245Z"
@@ -124,6 +123,8 @@ if __name__ == "__main__":
     apply_asset_tickets()
 ```
 
+## /api/v1/tickets/tickets/
+
 ### GET
 - **描述：**
 获取工单
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 | X-JMS-ORG       | 00000000-0000-0000-0000-000000000002    | 组织 ID，留空则默认为 Default 组织。 |
 | Content-Type    | application/json                        | 输出为json格式                                                       |
 
-- **请求体参数（Body）：**  
+- **查询参数（Query）：**  
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
@@ -162,7 +163,7 @@ if __name__ == "__main__":
 | status | 类型：String，状态 |  |
 | org_name | 类型：String，组织名称 |  |
 | date_created | 类型：String(date-time)，创建时间 |  |
-| date_update | 类型：String(date-time)，更新时间 |  |
+| date_updated | 类型：String(date-time)，更新时间 |  |
 
 
 - **请求示例**
@@ -217,10 +218,10 @@ def search_tickets():
         )
         response.raise_for_status()
         nodes_data = response.json()
-        if not nodes_data:
+        if nodes_data.get("count", 0) == 0:
             print(f"未找到工单")
         else:
-            print(f"查询到 {len(nodes_data)} 个匹配的工单：")
+            print(f"查询到 {nodes_data['count']} 个匹配的工单：")
             print(json.dumps(nodes_data, indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
@@ -247,16 +248,15 @@ if __name__ == "__main__":
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| org_id* | 类型：String，组织id | - |
-| apply_node* | 类型：String，申请节点id | - |
-| apply_assets* | 类型：string[]，申请资产id | - |
-| apply_accounts* | 类型：String[]，申请账号id | "@ALL"：所有账号；"@SPEC"：指定账号；"@INPUT"：手动账号；"@USER"：同名账号 |
-| apply_actions* | 类型：Integer，动作 | 默认：all；可选值：[all, connect, upload_file, download_file, updownload, clipboard_copy, clipboard_paste, clipboard_copy_paste] |
-| apply_date_start* | 类型：String(datetime)，开始日期（原文格式“String(date time)”修正为标准datetime格式表述） | - |
-| apply_date_expired* | 类型：String(datetime)，失效日期（原文“失效日志”应为笔误，格式“String(date time)”修正为标准datetime格式表述） | - |
+| org_id | 类型：String，组织id | - |
+| apply_nodes | 类型：String[]，申请节点id | - |
+| apply_assets | 类型：string[]，申请资产id | - |
+| apply_accounts | 类型：String[]，申请账号id | "@ALL"：所有账号；"@SPEC"：指定账号；"@INPUT"：手动账号；"@USER"：同名账号 |
+| apply_actions | 类型：String[]，动作 | 默认：[]；可选值：[connect, upload, download, copy, paste, delete, share] |
+| apply_date_start | 类型：String(datetime)，开始日期（原文格式“String(date time)”修正为标准datetime格式表述） | - |
+| apply_date_expired | 类型：String(datetime)，失效日期（原文“失效日志”应为笔误，格式“String(date time)”修正为标准datetime格式表述） | - |
 | comment | 类型：String，备注 | - |
 
-> 注：带 * 的参数为必填项。
 - **请求示例**
 
 **CURL**
@@ -269,7 +269,7 @@ curl -X PATCH 'https://localhost/api/v1/tickets/apply-asset-tickets/41b36621-dd4
         "org_id": "00000000-0000-0000-0000-000000000002",
         "apply_assets": ["b4f205af-4353-49ef-befa-ff9095d52a27"],
         "apply_accounts": ["@ALL"],
-        "apply_actions": ["all"],
+        "apply_actions": ["connect"],
         "apply_date_start": "2025-03-28 00:00:00",
         "apply_date_expired": "2025-04-04 00:00:00"
     }'
@@ -309,7 +309,7 @@ def approve_tickets():
             "org_id": ORG_ID,
             "apply_assets": [ASSET_ID],
             "apply_accounts": ["@ALL"],
-            "apply_actions": ["all"],
+            "apply_actions": ["connect"],
             "apply_date_start": "2025-03-28 00:00:00",
             "apply_date_expired": "2025-04-04 00:00:00"
     }
@@ -343,14 +343,13 @@ if __name__ == "__main__":
 | X-JMS-ORG       | 00000000-0000-0000-0000-000000000002    | 00000000-0000-0000-0000-000000000002 为组织 ID，此 id号为默认组织：Default，留空则默认为 Default 组织。 |
 | Content-Type    | application/json                        | 输出为json格式      
 
-- **请求体参数（Body）：**  
+- **查询参数（Query）：**  
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| limit* | 类型：int，每一页显示条数 | - |
-| offset* | 类型：int，分页偏移量 | - |
+| limit | 类型：int，每一页显示条数 | - |
+| offset | 类型：int，分页偏移量 | - |
 
-> 注：带 * 的参数为必填项。
 - **请求示例**
 
 **CURL**
@@ -396,10 +395,10 @@ def search_flows():
         )
         response.raise_for_status()
         nodes_data = response.json()
-        if not nodes_data:
+        if nodes_data.get("count", 0) == 0:
             print(f"未找到流程")
         else:
-            print(f"查询到 {len(nodes_data)} 个匹配的流程：")
+            print(f"查询到 {nodes_data['count']} 个匹配的流程：")
             print(json.dumps(nodes_data, indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
@@ -417,16 +416,13 @@ if __name__ == "__main__":
 | org_id | 类型：String，组织 |  |
 | org_name | 类型：String，组织名称 |  |
 | approval_level | 类型：int，审批级别 |  |
-| rules | 类型：Array，审批流程 |  |
-| level | 类型：int，流程级别 |  |
-| strategy | 类型：Object，审批角色 |  |
-| assignees_display | 类型：Array，审批人名称 |  |
+| rules | 类型：Array，审批流程 | 元素为 TicketFlowApprove 对象，包含 level（类型：int，审批级别，只读）和 users（审批用户）两个字段 |
 | created_by | 类型：String，创建人 |  |
 | date_created | 类型：String(date-time)，创建时间 |  |
-| date_update | 类型：String(date-time)，更新时间 |  |
+| date_updated | 类型：String(date-time)，更新时间 |  |
 
 
-## /api/v1/tickets/flows/{flowId}/
+## /api/v1/tickets/flows/{id}/
 ### PATCH
 - **描述：**
 更新流程
@@ -443,19 +439,15 @@ if __name__ == "__main__":
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| type* | 类型：string，类型 | - |
-| approval_level* | 类型：int，审批级别 | - |
-| rules* | 类型：Array，审批流程 | - |
-| level* | 类型：int，流程级别 | - |
-| strategy* | 类型：object，审批角色 | - |
-| assignees_display | 类型：Array，审批人名称 | - |
+| type | 类型：string，类型 | - |
+| approval_level | 类型：int，审批级别 | - |
+| rules | 类型：Array，元素为 TicketFlowApprove 对象（含 level：int，审批级别，readOnly 仅响应返回；users：审批人，唯一可写字段） | - |
 
-> 注：带 * 的参数为必填项。
 **请求示例**
 
 **CURL**
 ```sh
-curl -X PATCH 'https://localhost/api/v1/tickets/flows/' \
+curl -X PATCH 'https://localhost/api/v1/tickets/flows/41b36621-dd4d-492e-a72c-be20b2daeea8/' \
     -H 'Content-Type: application/json' \
     -H 'Authorization: Bearer b96810faac725563304dada8c323c4fa061863d4' \
     -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002' \
@@ -463,13 +455,7 @@ curl -X PATCH 'https://localhost/api/v1/tickets/flows/' \
         "type": "apply_asset",
         "approval_level": 1,
         "rules": [{
-            "level": 1,
-            "strategy": {
-                "value": "super_admin",
-                "label": "超级管理员"
-            },
-            "assignees_display": ["Administrator(admin)"],
-            "assignees": []
+            "users": []
         }]
     }'
 ```
@@ -507,13 +493,7 @@ def update_tickets_flows():
         "type": "apply_asset",
         "approval_level": 1,
         "rules": [{
-            "level": 1,
-            "strategy": {
-                "value": "super_admin",
-                "label": "超级管理员"
-            },
-            "assignees_display": ["Administrator(admin)"],
-            "assignees": []
+            "users": []
         }]
     }
 
@@ -547,4 +527,4 @@ if __name__ == "__main__":
 | assignees_display | 类型：Array，审批人名称 |  |
 | created_by | 类型：String，创建人 |  |
 | date_created | 类型：String(date-time)，创建时间 |  |
-| date_update | 类型：String(date-time)，更新时间 |  |
+| date_updated | 类型：String(date-time)，更新时间 |  |

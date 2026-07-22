@@ -107,6 +107,16 @@ if __name__ == "__main__":
     search_account_backup_plans(SEARCH_WORD)
 ```
 
+- **使用案例：**
+
+场景：季度安全审计前，审计员需要确认名为"生产数据库账号备份"的备份策略是否仍在定时执行，按名称过滤查询该策略的详细配置。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/account-backup-plans/?name=生产数据库账号备份&offset=0&limit=10' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
 
 
 
@@ -243,6 +253,31 @@ if __name__ == "__main__":
     create_account_backup_plans()
 ```
 
+- **使用案例：**
+
+场景：等保合规要求数据库账号密码定期离线留存，为生产环境的 MySQL、PostgreSQL 数据库账号创建每天凌晨 2 点自动备份的策略，并将备份文件密码拆分后分别发送给两位管理员，降低单人泄露风险。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/account-backup-plans/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "生产数据库账号备份",
+        "types": ["mysql", "postgresql"],
+        "is_periodic": true,
+        "crontab": "0 2 * * *",
+        "recipients_part_one": [{
+            "id": "d1a02c44-e40b-41ac-884a-c44f3c664209"
+        }],
+        "recipients_part_two": [{
+            "id": "5f8c1e33-9a27-4b06-8d12-3e7a90b1c554"
+        }],
+        "is_password_divided_by_email": true,
+        "comment": "等保合规：生产库账号每日离线备份"
+    }'
+```
+
 
 ## /api/v1/accounts/account-backup-plans/{id}/
 ### DELETE
@@ -314,4 +349,14 @@ def delete_account_backup_plans():
 
 if __name__ == "__main__":
     delete_account_backup_plans()
+```
+
+- **使用案例：**
+
+场景：测试环境资产已整体下线迁移，原为其配置的"测试环境账号备份"策略不再需要，运维人员先通过 GET 接口按名称查到该策略 ID 后将其删除，避免继续产生无效的备份邮件。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/accounts/account-backup-plans/8c6a5b12-4d3e-4f7a-9b08-2e15d6c73a40/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
 ```

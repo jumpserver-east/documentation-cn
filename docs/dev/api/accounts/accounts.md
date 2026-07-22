@@ -17,14 +17,14 @@
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
 | name | 类型：String，名称 | - |
-| username* | 类型：String，用户名 | - |
-| secret_type* | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥） | password |
+| username | 类型：String，用户名 | - |
+| secret_type | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥），默认为 `password` | password |
 | secret | 类型：String，密钥/密码，仅在 `secret_type` 字段选用 `password` 时启用 | - |
 | passphrase | 类型：String，密钥密码，仅在 `secret_type` 字段选用 `ssh_key` 时启用 | - |
 | comment | 类型：String，备注 | - |
-| assets* | 类型：String[]，资产 | - |
+| asset* | 类型：String，资产 ID（UUID）；响应中该字段为 AccountAsset 对象（含 id、name、address 等），请求时传资产 ID 字符串即可 | - |
 | privileged | 类型：Boolean，特权账号 | - |
-| push_now | 类型：String，立即推送 | - |
+| push_now | 类型：Boolean，立即推送 | false |
 | is_active | 类型：Boolean，激活 | - |
 
 > 注：带 * 的参数为必填项。
@@ -35,16 +35,15 @@
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | username | 类型：String，用户名 |  |
-| secret_type | 类型：String，密码类型 |  |
+| secret_type | 类型：Object（含 value、label 字段），密文类型 |  |
 | created_by | 类型：String，创建者 |  |
 | comment | 类型：String，备注 |  |
-| su_from | 类型：String，sudo用户 |  |
-| asset | 类型：String，资产薪资 |  |
-| source | 类型：String，来源 |  |
-| connectivity | 类型：String，连通性 |  |
+| su_from | 类型：Object（含 id、name、username 字段），切换自账号 |  |
+| asset | 类型：Object（AccountAsset 对象，含 id、name、address、type、category、platform 等字段），资产信息 |  |
+| source | 类型：Object（含 value、label 字段），来源 |  |
+| connectivity | 类型：Object（含 value、label 字段），连通性 |  |
 | org_id | 类型：String，组织 |  |
 | org_name | 类型：String，组织名称 |  |
-| has_secret | 类型：Boolean，是否有密码 |  |
 | privileged | 类型：Boolean，是否有特权账号 |  |
 | is_active | 类型：Boolean，激活 |  |
 
@@ -129,14 +128,13 @@ if __name__ == "__main__":
 | 字段名称 | 字段描述 | 备注 |
 | --- | --- | --- |
 | asset | 类型：Object，资产 |  |
-| connectivity | 类型：String，可连接性 |  |
+| connectivity | 类型：Object（含 value、label 字段），可连接性 |  |
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | privileged | 类型：Boolean，是否特权账号 |  |
 | username | 类型：String，账号名 |  |
-| secret | 类型：String，密码 |  |
 | secret_type | 类型：Object，密文类型 |  |
-| source | 类型：String，来源 |  |
+| source | 类型：Object（含 value、label 字段），来源 |  |
 | is_active | 类型：Boolean，激活中 |  |
 | created_by | 类型：String，创建者 |  |
 | date_created | 类型：String(date-time)，创建时间 |  |
@@ -145,7 +143,7 @@ if __name__ == "__main__":
 
 **CURL**
 ```sh
-curl -X GET 'https://localhost/api/v1/accounts/accounts/?node_id=&asset_id=a014d307-7c2b-4788-a3e0aebd01ddf761&has_secret=true&offset=0&limit=15' \
+curl -X GET 'https://localhost/api/v1/accounts/accounts/?asset_id=a014d307-7c2b-4788-a3e0-aebd01ddf761&has_secret=true&offset=0&limit=15' \
     -H 'Content-Type:application/json' \
     -H 'Authorization: Bearer b96810faac725563304dada8c323c4fa061863d4' \
     -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002'
@@ -192,11 +190,13 @@ def search_assets_accounts():
         )
         response.raise_for_status()
         accounts_data = response.json()
-        if not accounts_data:
-            print(f"未找到匹配的资产账号")
+        results = accounts_data.get("results", [])
+        total = accounts_data.get("count", 0)
+        if total == 0:
+            print("未找到匹配的资产账号")
         else:
-            print(f"查询到 {len(accounts_data)} 个匹配的资产账号：")
-            print(json.dumps(accounts_data, indent = 2, ensure_ascii = False))
+            print(f"查询到 {total} 个匹配的资产账号：")
+            print(json.dumps(results, indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
 
@@ -294,17 +294,17 @@ if __name__ == "__main__":
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
 | name | 类型：String，名称 | - |
-| username* | 类型：String，用户名 | - |
-| secret_type* | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥） | password |
+| username | 类型：String，用户名 | - |
+| secret_type | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥），默认为 `password` | password |
 | secret | 类型：String，密钥/密码，仅在 `secret_type` 字段选用 `password` 时启用 | - |
 | passphrase | 类型：String，密钥密码，仅在 `secret_type` 字段选用 `ssh_key` 时启用 | - |
 | comment | 类型：String，备注 | - |
-| assets* | 类型：String[]，资产 | - |
+| asset* | 类型：String，资产 ID（UUID）；响应中该字段为 AccountAsset 对象（含 id、name、address 等），请求时传资产 ID 字符串即可 | - |
 | privileged | 类型：Boolean，特权账号 | - |
-| push_now | 类型：String，立即推送 | - |
+| push_now | 类型：Boolean，立即推送 | false |
 | is_active | 类型：Boolean，激活 | - |
 
-> 注：带 * 的参数为必填项。
+> 注：带 * 的参数为必填项（必填约束仅适用于 PUT；PATCH 时所有字段均可选）。
 - **返回参数：**  
 
 | 字段名称 | 字段描述 | 备注 |
@@ -312,16 +312,15 @@ if __name__ == "__main__":
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | username | 类型：String，用户名 |  |
-| secret_type | 类型：String，密码类型 |  |
+| secret_type | 类型：Object（含 value、label 字段），密文类型 |  |
 | created_by | 类型：String，创建者 |  |
 | comment | 类型：String，备注 |  |
-| su_from | 类型：String，sudo用户 |  |
-| asset | 类型：String，资产薪资 |  |
-| source | 类型：String，来源 |  |
-| connectivity | 类型：String，连通性 |  |
+| su_from | 类型：Object（含 id、name、username 字段），切换自账号 |  |
+| asset | 类型：Object（AccountAsset 对象，含 id、name、address、type、category、platform 等字段），资产信息 |  |
+| source | 类型：Object（含 value、label 字段），来源 |  |
+| connectivity | 类型：Object（含 value、label 字段），连通性 |  |
 | org_id | 类型：String，组织 |  |
 | org_name | 类型：String，组织名称 |  |
-| has_secret | 类型：Boolean，是否有密码 |  |
 | privileged | 类型：Boolean，是否有特权账号 |  |
 | is_active | 类型：Boolean，激活 |  |
 

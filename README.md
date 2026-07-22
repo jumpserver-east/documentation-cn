@@ -18,11 +18,19 @@ pip install -r requirements/requirements.txt
 mkdocs serve
 ```
 
+默认服务中文文档；英文文档使用 `/en/` 路径访问。
+
+The default site serves Chinese documentation. English documentation is available under the `/en/` path.
+
 ## 编译
 
 ```bash
 mkdocs build
 ```
+
+构建会同时生成中文站点和英文站点：`site/` 与 `site/en/`。中英文页面按同目录的 `.md` 与 `.en.md` 文件配对，维护规则见 [双语文档规范](I18N_GUIDE.md)。
+
+The build produces both locales: `site/` and `site/en/`. Chinese and English pages are paired as `.md` and `.en.md` files in the same directory. See the [Bilingual Documentation Guide](I18N_GUIDE.md) for maintenance rules.
 
 ## 帮助
 

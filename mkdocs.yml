@@ -41,8 +41,8 @@ nav:
   - 前言: manual/prologue_ops.md
   - 系统架构说明: manual/maintenance/system_architecture.md
   - 服务端口说明: manual/maintenance/service_port.md
-  - 日常基本操作: manual/maintenance/daily_operations.md
-  - 日志查看操作: manual/maintenance/logs_inspection.md
+  - 基本运维操作: manual/maintenance/daily_operations.md
+  - 组件日志查看: manual/maintenance/logs_inspection.md
   - 系统升级操作: manual/maintenance/system_upgrade.md
   - 故障恢复操作: manual/maintenance/crash_recovery.md
   - 系统参数说明: manual/maintenance/env.md
@@ -132,6 +132,29 @@ plugins:
     - search:
         lang:
           - en
-          - ja
+          - zh
         separator: '[\s\-\.]+'
     - macros
+    - i18n:
+        docs_structure: suffix
+        fallback_to_default: true
+        reconfigure_material: true
+        languages:
+          - locale: zh
+            name: 中文
+            build: true
+            default: true
+          - locale: en
+            name: English
+            build: true
+            site_name: JumpServer Documentation
+            nav_translations:
+              免责声明: Disclaimer
+              前言: Prologue
+              系统架构说明: System Architecture
+              服务端口说明: Service Ports
+              基本运维操作: Basic Operations
+              组件日志查看: Component Log Inspection
+              系统升级操作: System Upgrade
+              故障恢复操作: Fault Recovery
+              系统参数说明: Configuration Parameters

@@ -2,45 +2,30 @@
 
 ## 1 端口说明
 
-JumpServer 服务涉及到的端口分为三个部分：
+JumpServer 服务涉及以下端口：
 
-- JumpServer 服务器端口；
-- 数据库服务器端口（当 PostgreSQL 与 Redis 为内置数据库时，无需单独开放）；
-- 被纳管的资产端口；
+| 端口 | 作用 | 说明 |
+| :--- | :--- | :--- |
+| 22 | SSH | 安装、升级及管理使用 |
+| 80 | Web HTTP 服务 | 通过 HTTP 协议访问 JumpServer 前端页面 |
+| 443 | Web HTTPS 服务 | 通过 HTTPS 协议访问 JumpServer 前端页面 |
+| 3306 | 数据库服务 | MySQL 服务使用 |
+| 6379 | 数据库服务 | Redis 服务使用 |
+| 3389 | Razor 服务端口 | Windows 资产 RDP 代理服务所需的 TCP 端口 |
+| 2222 | SSH Client | SSH Client 方式使用终端工具连接 JumpServer，比如 Xshell、PuTTY、MobaXterm 等终端工具 |
+| 33061 | Magnus MySQL 服务端口 | MySQL 数据库资产代理服务所需的 TCP 端口 |
+| 33062 | Magnus MariaDB 服务端口 | MariaDB 数据库资产代理服务所需的 TCP 端口 |
+| 54320 | Magnus PostgreSQL 服务端口 | PostgreSQL 数据库资产代理服务所需的 TCP 端口 |
+| 63790 | Magnus Redis 服务端口 | Redis 数据库资产代理服务所需的 TCP 端口 |
+| 15210 | Magnus Oracle 服务端口 | Oracle 数据库资产代理服务所需的 TCP 端口 |
+| 15900 | NEC 服务端口 | VNC 资产代理服务所需的 TCP 端口 |
 
-### 1.1 JumpServer 服务器端口
+!!! info "客户端接入与代理服务端口"
+    表中的客户端接入与代理服务端口（`2222`、`3389`、`33061`、`33062`、`54320`、`63790`、`15210`、`15900`）用于用户通过本地客户端工具连接目标资产，例如 Windows 远程桌面连接（`mstsc`）、MobaXterm、Xshell、PuTTY 或数据库客户端。
 
-JumpServer 部署成功后，需要开放的端口如下：
+    使用本地客户端工具时，必须确保用户 PC 到 JumpServer 宿主机对应客户端接入或代理服务端口的 TCP 网络可达，并在两端防火墙及中间网络设备上放行相应端口。JumpServer 宿主机还必须能够访问目标资产实际使用的服务端口。
 
-| 端口 | 作用 | 说明 | 是否必须开通 |
-| :--- | :--- | :--- | :--- |
-| 80、443 | Web 端访问，http、https 服务端口 | http、https 服务端口 | 需要 |
-| 2222 | SSH（堡垒机用户） | koko 服务组件默认端口，如果启用 SSH Client 方式访问堡垒机及登录资产，则需要开启 | 按需 |
-| 3389 | Windows 资产的 RDP 方式连接端口 | Razor 服务组件默认端口，如果需要 RDP 方式访问 Windows 资产，则需要开启 | 按需 |
-| 3390 | Windows 2003 等老版本资产的 RDP 方式连接端口 | XRDP 服务组件默认端口，如果启用 XRDP 组件（`XRDP_ENABLED=1`），则需要开启 | 按需 |
-| 33061、33062、54320、63790、14330、15210 | Magnus 服务端口 | Magnus 服务组件默认端口，如果启用 DB 组件，则需要开启 | 按需 |
-
-### 1.2 数据库服务器端口
-
-如 JumpServer 与数据库服务解耦，则数据库节点需要开放的端口如下：
-
-| 端口 | 作用 | 说明 | 是否必须开通 |
-| :--- | :--- | :--- | :--- |
-| 3306 | 数据库服务端口（MySQL） | MySQL 服务使用，存放 JumpServer 服务数据 | 与 5432 二选一（根据 `DB_ENGINE` 实际使用的数据库类型开放） |
-| 5432 | 数据库服务端口（PostgreSQL） | PostgreSQL 服务使用，存放 JumpServer 服务数据 | 与 3306 二选一（根据 `DB_ENGINE` 实际使用的数据库类型开放） |
-| 6379 | Redis 服务端口 | Redis 服务使用，存放 JumpServer 缓存数据 | 是 |
-
-### 1.3 资产端口
-
-以下表格中的协议开放针对于 JumpServer 中纳管的资产，即需要开通 JumpServer 服务对该资产的访问端口。开放端口的操作在资产上进行。
-
-| 协议类型 | 对应端口 | 作用 | 说明 |
-| :--- | :--- | :--- | :--- |
-| SSH 协议 | 默认端口为 22 | JumpServer 通过 SSH 协议连接资产时使用 | 根据资产实际使用 SSH 协议端口做规则放行 |
-| RDP 协议 | 默认端口为 3389 | JumpServer 通过 RDP 协议连接资产时使用 | 根据资产实际使用 RDP 协议端口做规则放行 |
-| VNC 协议 | 默认端口为 5900 | JumpServer 通过 VNC 协议连接资产时使用 | 根据资产实际使用 VNC 协议端口做规则放行 |
-| Telnet 协议 | 默认端口为 23 | JumpServer 通过 telnet 协议连接资产时使用 | 根据资产实际使用 Telnet 协议端口做规则放行 |
-| 其他协议 | 类似于 MySQL，默认为 3306；<br>类似于 HTTPS，默认为 443 | JumpServer 通过对应的协议连接资产时使用 | 根据资产实际使用的协议端口做规则放行 |
+    `用户 PC -> JumpServer 宿主机客户端接入/代理服务端口 -> 目标资产服务端口`
 
 ## 2 防火墙配置说明
 

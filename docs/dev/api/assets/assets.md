@@ -119,6 +119,31 @@ if __name__ == "__main__":
     create_assets()
 ```
 
+- **使用案例：**
+
+场景：CMDB 系统新上架一台生产环境 Linux 应用服务器，运维平台自动将其纳管到 JumpServer 的生产节点，并按公司规范登记非标 SSH 端口。
+
+```sh
+curl -X POST 'https://localhost/api/v1/assets/hosts/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "web-server-01",
+        "address": "10.10.20.11",
+        "platform": {"id": 1},
+        "protocols": [
+            {"name": "ssh", "port": 22022}
+        ],
+        "nodes": [
+            {"id": "1ecb988f-ded3-4b57-bc8f-808467abbe2f"}
+        ],
+        "is_active": true
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)
+
 
 
 ## /api/v1/assets/hosts/{id}/
@@ -193,3 +218,16 @@ def delete_assets_hosts():
 if __name__ == "__main__":
     delete_assets_hosts()
 ```
+
+- **使用案例：**
+
+场景：一台旧数据库服务器完成业务迁移后退役下线，资产回收流程调用接口将其从 JumpServer 中删除，避免残留无效资产与授权入口。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/assets/hosts/3f8c9a52-7d14-4e06-b2ab-56cd7e10f983/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)

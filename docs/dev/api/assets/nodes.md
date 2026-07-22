@@ -12,15 +12,14 @@
 | X-JMS-ORG | `00000000-0000-0000-0000-000000000002` | 组织 ID，不传则默认归属 `Default` 组织 |
 | Content-Type | `application/json` | 请求/响应体为 JSON 格式 |
 
-- **请求体参数（Body）：**
+- **查询参数（Query Params）：**
 
 | 参数名 | 描述 | 可选值 |
 | --- | --- | --- |
-| search | 类型：String，搜索词 | - |
-| limit* | 类型：int，每一页显示条数，支持节点名搜索 | - |
-| offset* | 类型：int，分页偏移量 | - |
+| search | 类型：String，搜索词，支持节点名搜索 | - |
+| limit | 类型：int，每一页显示条数 | - |
+| offset | 类型：int，分页偏移量 | - |
 
-> 注：带 * 的参数为必填项。
 - **返回参数：**
 
 | 字段名称 | 字段描述 | 备注 |
@@ -29,7 +28,7 @@
 | key | 类型：String，键 |  |
 | value | 类型：String，值\节点名称 |  |
 | org_id | 类型：String，组织 |  |
-| name | 类型：String[]，用户 |  |
+| name | 类型：String，节点名称（只读） |  |
 | full_value | 类型：String，全称 |  |
 | org_name | 类型：String，组织名称 |  |
 
@@ -82,10 +81,11 @@ def search_nodes(keyword):
         )
         response.raise_for_status()
         nodes_data = response.json()
-        if not nodes_data:
+        nodes = nodes_data.get("results", [])
+        if not nodes:
             print("未找到匹配的资产节点")
         else:
-            print(f"查询到 {len(nodes_data)} 个匹配的资产节点：")
+            print(f"查询到 {nodes_data['count']} 个匹配的资产节点：")
             print(json.dumps(nodes_data, indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
@@ -96,17 +96,22 @@ if __name__ == "__main__":
 - **响应示例：**
 
 ```json
-[
-  {
-    "id": "aa2aa3fe-c2c3-49ca-b4bd-d04dc8bf6693",
-    "key": "1",
-    "value": "DEFAULT",
-    "org_id": "00000000-0000-0000-0000-000000000002",
-    "name": "DEFAULT",
-    "full_value": "/DEFAULT",
-    "org_name": "DEFAULT"
-  }
-]
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "aa2aa3fe-c2c3-49ca-b4bd-d04dc8bf6693",
+      "key": "1",
+      "value": "DEFAULT",
+      "org_id": "00000000-0000-0000-0000-000000000002",
+      "name": "DEFAULT",
+      "full_value": "/DEFAULT",
+      "org_name": "DEFAULT"
+    }
+  ]
+}
 ```
 
 ##  /api/v1/assets/nodes/{id}/children/
@@ -133,9 +138,8 @@ if __name__ == "__main__":
 
 | 参数名 | 描述 | 可选值 |
 | --- | --- | --- |
-| value* | 类型：String，节点名称 | - |
+| value | 类型：String，节点名称；swagger 定义中该字段非必填（nullable），但创建节点时建议传入以指定节点名称 | - |
 
-> 注：带 * 的参数为必填项。
 - **返回参数：**
 
 | 字段名称 | 字段描述 | 备注 |
@@ -144,7 +148,7 @@ if __name__ == "__main__":
 | key | 类型：String，键 |  |
 | value | 类型：String，值\节点名称 |  |
 | org_id | 类型：String，组织 |  |
-| name | 类型：String[]，用户 |  |
+| name | 类型：String，节点名称（只读） |  |
 | full_value | 类型：String，全称 |  |
 | org_name | 类型：String，组织名称 |  |
 

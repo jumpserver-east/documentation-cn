@@ -112,6 +112,29 @@ if __name__ == "__main__":
     create_assets_accounts()
 ```
 
+- **使用案例：**
+
+场景：新上线一台 Linux 服务器 `web-server-01` 后，将其部署账号 `deploy` 纳入平台统一托管，并在创建时立即推送到资产，避免手工登录改密。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/accounts/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "web-server-01-deploy",
+        "username": "deploy",
+        "secret_type": "password",
+        "secret": "Dep@2026#Init",
+        "asset": "09e1e072-1498-42f7-a6b1-567c2db56f59",
+        "privileged": false,
+        "push_now": true,
+        "comment": "web-server-01 上线纳管，账号由平台托管"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ### GET
 - **描述:**
 查询账号
@@ -204,6 +227,19 @@ if __name__ == "__main__":
     search_assets_accounts()
 ```
 
+- **使用案例：**
+
+场景：季度安全审计时，盘点全组织内所有仍处于激活状态的 `root` 特权账号，输出清单供审计人员核对是否存在越权托管。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/accounts/?username=root&privileged=true&is_active=true&limit=100' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ## /api/v1/accounts/accounts/{id}/
 
 ### DELETE
@@ -276,6 +312,19 @@ def delete_assets_accounts():
 if __name__ == "__main__":
     delete_assets_accounts()
 ```
+
+- **使用案例：**
+
+场景：数据库服务器 `db-server-02` 已按计划下线，运维在资产退库流程中清理其上遗留的托管账号 `dba_backup`，防止失效凭据继续留存在平台。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/accounts/accounts/6f2ab8c1-3d54-4e0a-9c77-1b2f0c5d8e9a/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 
 ### PUT / PATCH
 - **描述：**
@@ -390,3 +439,21 @@ def update_assets_accounts():
 if __name__ == "__main__":
     update_assets_accounts()
 ```
+
+- **使用案例：**
+
+场景：应急响应中发现账号 `appadmin` 疑似泄露，运维在目标主机上手工重置密码后，用 PATCH 仅同步更新平台托管的密文并补充备注，不改动账号其他属性。
+
+```sh
+curl -X PATCH 'https://localhost/api/v1/accounts/accounts/f3280232-113a-4135-a908-eddd1d9f27b6/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "secret_type": "password",
+        "secret": "Emg@Reset#0722",
+        "comment": "2026-07-22 应急改密，工单 INC-20260722-013"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)

@@ -7,6 +7,7 @@
 
 | 键 | 值 | 备注 |
 |----|----|------|
+| Authorization | `Bearer <token>` | 必选，认证 Token，格式固定为 `Bearer <token>` |
 | Accept | application/json | 可选 |
 
 - **返回参数：**
@@ -37,7 +38,7 @@
 
 **CURL**
 ```sh
-curl -X GET 'https://demo.jumpserver.org/api/v1/health/'
+curl -X GET -H "Authorization: Bearer $TOKEN" 'https://demo.jumpserver.org/api/v1/health/'
 ```
 
 **Python**
@@ -45,10 +46,12 @@ curl -X GET 'https://demo.jumpserver.org/api/v1/health/'
 import requests
 
 API_URL = 'https://demo.jumpserver.org'
+TOKEN = 'your token'
 
 def check_health():
 	url = f"{API_URL}/api/v1/health/"
-	r = requests.get(url, timeout=5)
+	headers = {"Authorization": f"Bearer {TOKEN}"}
+	r = requests.get(url, headers=headers, timeout=5)
 	if r.status_code == 204 or not r.content:
 		print('健康: 无内容返回 (204/空)')
 		return

@@ -1,3 +1,5 @@
+> **说明：** 本页涉及的改密计划及其执行接口（`/api/v1/accounts/change-secret-automations/`、`/api/v1/accounts/change-secret-automations/{id}/`、`/api/v1/accounts/change-secret-executions/`）为 JumpServer 企业版（XPack）功能，未包含在本仓库 swagger.yml（社区版）基准内，字段定义请以 JumpServer 企业版 API schema 为准。
+
 ## /api/v1/accounts/change-secret-automations/
 
 ### GET
@@ -62,11 +64,12 @@ def search_change_secret_automations(keyword):
         )
         response.raise_for_status()
         nodes_data = response.json()
-        if not nodes_data:
+        count = nodes_data.get("count", 0)
+        if count == 0:
             print(f"未找到改密计划")
         else:
-            print(f"查询到 {len(nodes_data)} 个匹配的改密计划：")
-            print(json.dumps(nodes_data, indent = 2, ensure_ascii = False))
+            print(f"查询到 {count} 个匹配的改密计划：")
+            print(json.dumps(nodes_data.get("results", []), indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
 
@@ -238,11 +241,16 @@ if __name__ == "__main__":
 | X-JMS-ORG | 00000000-0000-0000-0000-000000000002 | 00000000-0000-0000-0000-000000000002为组织ID，此id号为默认组织：Default，留空则默认为 Default 组织。 |
 | Content-Type | application/json | 输出为json格式 |
 
+- **路径参数（Path）：** 
+
+| 参数名 | 描述 | 默认值 |
+| --- | --- | --- |
+| id* | 类型：String，改密计划ID，通过 URL 路径传递 | - |
+
 - **请求体参数（Body）：** 
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| id* | 类型：String，改密计划ID | - |
 | name* | 类型：String，名称 | - |
 | accounts* | 类型：String[]，资产账户名 | - |
 | assets | 类型：String[]，资产ID | - |
@@ -253,8 +261,8 @@ if __name__ == "__main__":
 | interval | 类型：String，周期执行 | is_periodic=true时填写，默认24 |
 | secret_strategy* | 类型：String，密文生成策略 | 默认: 指定specific；随机：random |
 | secret_type* | 类型：String，密文类型 | 默认：password；可选值：ssh_key |
-| password_rules | 类型：int，随机密码长度 | 默认30；secret_strategy=random且secret_type=password时必填 |
-| secret | 类型：String，密码 | secret_strateg=specific且secret_type=password时必填 |
+| password_rules | 类型：Object，密码生成规则。子字段：length（int，密码长度，范围 8-36，默认 16）；可选子字段：lowercase/uppercase/digit/symbol（Boolean）、exclude_symbols（String） | 默认16；secret_strategy=random且secret_type=password时必填 |
+| secret | 类型：String，密码 | secret_strategy=specific且secret_type=password时必填 |
 | comment | 类型：String，备注 | - |
 
 > 注：带 * 的参数为必填项。
@@ -379,11 +387,11 @@ if __name__ == "__main__":
 | X-JMS-ORG | `00000000-0000-0000-0000-000000000002` | 组织 ID，不传则默认归属 `Default` 组织 |
 | Content-Type | `application/json` | 请求/响应体为 JSON 格式 |
 
-- **请求体参数（Body）：**  
+- **路径参数（Path）：**  
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| id* | 类型：String，改密计划ID | - |
+| id* | 类型：String，改密计划ID，通过 URL 路径传递（DELETE 请求不携带请求体） | - |
 
 > 注：带 * 的参数为必填项。
 **请求示例**
@@ -468,7 +476,7 @@ if __name__ == "__main__":
 curl -X POST 'https://localhost/api/v1/accounts/change-secret-executions/' \
     -H 'Content-Type: application/json' \
     -H 'Authorization: Bearer b96810faac725563304dada8c323c4fa061863d4' \
-    -H 'X-JMS-ORG: 00000000-0000-0000-000000000002' \
+    -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002' \
     -d '{
         "automation": "bc778562-630e-4c89-971a-3ec629d4fd3f"
     }'

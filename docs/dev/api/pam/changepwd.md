@@ -106,6 +106,18 @@ if __name__ == "__main__":
 | date_updated | 类型：String[date]，更新时间 |  |
 | created_by | 类型：String，创建人 |  |
 
+- **使用案例：**
+
+场景：季度安全审计前，运维人员按名称关键字检索生产环境相关的改密计划，确认生产资产的账号均已纳入定期改密范围。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/change-secret-automations/?search=prod&offset=0&limit=15' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 
 ### POST
 - **描述：**
@@ -226,6 +238,33 @@ if __name__ == "__main__":
 | date_created | 类型：String[date]，创建时间 |  |
 | date_updated | 类型：String[date]，更新时间 |  |
 | created_by | 类型：String，创建人 |  |
+
+- **使用案例：**
+
+场景：一批新交付的 MySQL 数据库服务器上线，为其 root 账号创建每周六凌晨 3 点自动轮换的随机密码改密计划，密码长度 20 位。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/change-secret-automations/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "mysql-root-weekly-rotate",
+        "accounts": ["root"],
+        "assets": ["1f6a2c3e-8b4d-4f2a-9c1e-5d7b8a9e0f12"],
+        "secret_strategy": "random",
+        "secret_type": "password",
+        "password_rules": {
+            "length": "20"
+        },
+        "is_periodic": true,
+        "crontab": "0 3 * * 6",
+        "is_active": true,
+        "comment": "新交付 MySQL 服务器 root 账号每周轮换"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 
 
 ## /api/v1/accounts/change-secret-automations/{id}/
@@ -375,6 +414,33 @@ if __name__ == "__main__":
 | date_updated | 类型：String[date]，更新时间 |  |
 | created_by | 类型：String，创建人 |  |
 
+- **使用案例：**
+
+场景：公司密码安全策略升级，将既有改密计划的随机密码长度由 16 位提高到 24 位，并把执行周期从每周缩短为每 24 小时一次。
+
+```sh
+curl -X PUT 'https://localhost/api/v1/accounts/change-secret-automations/0a6a2e40-f92b-4aca-94ef-5f6ae5b0966c/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "mysql-root-weekly-rotate",
+        "accounts": ["root"],
+        "assets": ["1f6a2c3e-8b4d-4f2a-9c1e-5d7b8a9e0f12"],
+        "secret_strategy": "random",
+        "secret_type": "password",
+        "password_rules": {
+            "length": "24"
+        },
+        "is_periodic": true,
+        "interval": 24,
+        "is_active": true,
+        "comment": "安全策略升级：密码长度 24 位，每 24 小时轮换"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ### DELETE
 - **描述：**
 删除改密计划
@@ -446,6 +512,18 @@ def delete_change_secret_automations():
 if __name__ == "__main__":
     delete_change_secret_automations()
 ```
+
+- **使用案例：**
+
+场景：一批老旧 Windows 服务器完成下线回收，其关联的改密计划不再需要，运维在资产清理流程的最后一步删除该计划，避免任务继续空跑报错。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/accounts/change-secret-automations/7c3d9e5a-2b1f-4e8c-a6d4-9f0b3c7e1a58/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 
 ## /api/v1/accounts/change-secret-executions/
 
@@ -536,3 +614,19 @@ if __name__ == "__main__":
 | 字段名称 | 字段描述 | 备注 |
 | --- | --- | --- |
 | task | 类型：String，任务id |  |
+
+- **使用案例：**
+
+场景：核心运维人员离职当天，安全团队不等待周期调度，立即手动触发其接触过的生产服务器改密计划，实现特权账号密码的即时轮换。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/change-secret-executions/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "automation": "bc778562-630e-4c89-971a-3ec629d4fd3f"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)

@@ -41,32 +41,32 @@ nav:
   - 前言: dev/api/prologue_api.md
   - 认证方式:
     - 概述: dev/api/auth/auth.md
-    - Session: dev/api/auth/session.md
-    - Token: dev/api/auth/token.md
-    - Private Token: dev/api/auth/private_token.md
-    - Access Key: dev/api/auth/access_key.md
+    - Session 认证: dev/api/auth/session.md
+    - Token 认证: dev/api/auth/token.md
+    - Private Token 认证: dev/api/auth/private_token.md
+    - Access Key 认证: dev/api/auth/access_key.md
   - 用户:
-    - users: dev/api/users/users.md
-    - groups: dev/api/users/usergroups.md
+    - 用户列表: dev/api/users/users.md
+    - 用户组: dev/api/users/usergroups.md
   - 资产:
-    - assets: dev/api/assets/assets.md
-    - nodes: dev/api/assets/nodes.md
-    - authorization: dev/api/assets/authorization.md
+    - 资产列表: dev/api/assets/assets.md
+    - 资产节点: dev/api/assets/nodes.md
+    - 用户授权资产: dev/api/assets/authorization.md
   - 授权:
-    - asset-permissions: dev/api/perms/authorization.md
+    - 资产授权: dev/api/perms/authorization.md
   - 账号:
-    - accounts: dev/api/accounts/accounts.md
-    - accountsecrets: dev/api/accounts/accountsecrets.md
+    - 账号列表: dev/api/accounts/accounts.md
+    - 查询账号密码: dev/api/accounts/accountsecrets.md
   - PAM:
-    - integration-applications: dev/api/pam/integration-application.md
-    - change-secret-automations: dev/api/pam/changepwd.md
-    - account-backup-plans: dev/api/pam/account_backup.md
-  - 工单: 
-    - ticket: dev/api/ticket/ticket.md
+    - 集成应用: dev/api/pam/integration-application.md
+    - 改密计划: dev/api/pam/changepwd.md
+    - 账号备份: dev/api/pam/account_backup.md
+  - 工单:
+    - 工单管理: dev/api/ticket/ticket.md
   - 健康检查:
-    - health: dev/api/health/health.md
+    - 服务健康检查: dev/api/health/health.md
   - 终端:
-    - metrics: dev/api/terminal/metrics.md
+    - 组件指标: dev/api/terminal/metrics.md
   - 实战案例:
     - 生成用户免密直连资产 URL: dev/api/examples/direct_connect_url.md
     - 对接外部工单系统: dev/api/examples/external_ticket.md

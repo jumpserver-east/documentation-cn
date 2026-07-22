@@ -11,7 +11,7 @@ Access Key 使用请求签名机制（HMAC-SHA256），无需用户名密码。�
 **请求示例：**
 
 ```python
-# pip install requests drf-httpsighttpsig
+# pip install requests httpsig
 import requests, datetime, json
 from httpsig.requests_auth import HTTPSignatureAuth
 

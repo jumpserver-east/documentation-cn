@@ -19,10 +19,10 @@
 | name* | 类型：String，名称 | - |
 | users | 类型：String[]，用户id | - |
 | user_groups | 类型：String[]，用户组id | - |
-| assets | 类型：String[]，资产id（原文“资id”修正为“资产id”，确保语义完整） | - |
+| assets | 类型：String[]，资产id | - |
 | nodes | 类型：String[]，节点id | - |
 | accounts | 类型：String[]，账号id，可选特殊值：<br>- "@ALL"：所有账号<br>- "@SPEC"：指定账号<br>- "@INPUT"：手动账号<br>- "@USER"：同名账号 | - |
-| actions* | 类型：String[]，动作，可选值：[all, connect, upload_file, download_file, updownload, clipboard_copy, clipboard_paste, clipboard_copy_paste] | all |
+| actions | 类型：String[]，动作，可选值：[connect, upload, download, copy, paste, delete, share] | connect, upload, download, copy, paste, delete, share |
 | is_active | 类型：Boolean，激活中 | true |
 | date_start | 类型：String(datetime)，开始时间 | - |
 | date_expired | 类型：String(datetime)，失效时间 | - |
@@ -39,7 +39,7 @@ curl -X POST 'https://localhost/api/v1/perms/asset-permissions/' \
 -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002' \
 -d '{
         "name":"create_asset_permission",
-        "user_groups":[{"pk":"745980b1-54be-4c5e-b6ab-89826c2e2054"}],
+        "user_groups":["745980b1-54be-4c5e-b6ab-89826c2e2054"],
         "nodes":["3728f004-99a2-4fca-9577-84d5ffcf9eff"],
         "accounts":["@ALL"],
         "actions":["connect","upload","download","copy","paste"],
@@ -81,7 +81,7 @@ def create_asset_permissions():
     )
     data = {
         "name":"create_asset_permission",
-        "user_groups":[{"pk": GROUP_ID}],
+        "user_groups":[GROUP_ID],
         "nodes":[NODE_ID],
         "accounts":["@ALL"],
         "actions":["connect","upload","download","copy","paste"],
@@ -102,7 +102,7 @@ def create_asset_permissions():
         print(f"错误:{e}")
 
 if __name__ == "__main__":
-    delete_assets_hosts()
+    create_asset_permissions()
 ```
 
 - **返回参数：**  
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | users | 类型：String[]，用户 |  |
-| users_groups | 类型：String[]，用户组 |  |
+| user_groups | 类型：String[]，用户组 |  |
 | assets | 类型：String[]，资产 |  |
 | nodes | 类型：String[]，节点 |  |
 | accounts | 类型：String[]，授权账号 |  |
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 | assets | 类型：String[]，资产id | - |
 | nodes | 类型：String[]，节点id | - |
 | accounts | 类型：String[]，账号，可选特殊值：<br>- "@ALL"：所有账号<br>- "@SPEC"：指定账号<br>- "@INPUT"：手动账号<br>- "@USER"：同名账号 | - |
-| actions* | 类型：String[]，动作，可选值：[all, connect, upload_file, download_file, updownload, clipboard_copy, clipboard_paste, clipboard_copy_paste] | all |
+| actions | 类型：String[]，动作，可选值：[connect, upload, download, copy, paste, delete, share] | connect, upload, download, copy, paste, delete, share |
 | is_active | 类型：Boolean，激活中 | true |
 | date_start | 类型：String(datetime)，开始时间 | - |
 | date_expired | 类型：String(datetime)，失效时间 | - |
@@ -236,7 +236,7 @@ curl -X PUT 'https://localhost/api/v1/perms/asset-permissions/ca90421b-bc45-48c0
     -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002' \
     -d '{
             "name":"create_asset_permission_update",
-            "user_groups":[{"pk":"745980b1-54be-4c5e-b6ab-89826c2e2054"}],
+            "user_groups":["745980b1-54be-4c5e-b6ab-89826c2e2054"],
             "nodes":["3728f004-99a2-4fca-9577-84d5ffcf9eff"],
             "accounts":["@ALL"],
             "actions":["connect","upload","download","copy","paste"],
@@ -279,7 +279,7 @@ def update_asset_permissions():
     )
     data = {
         "name":"create_asset_permission_update",
-        "user_groups":[{"pk": GROUP_ID}],
+        "user_groups":[GROUP_ID],
         "nodes":[NODE_ID],
         "accounts":["@ALL"],
         "actions":["connect","upload","download","copy","paste"],
@@ -310,7 +310,7 @@ if __name__ == "__main__":
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | users | 类型：String[]，用户 |  |
-| users_groups | 类型：String[]，用户组 |  |
+| user_groups | 类型：String[]，用户组 |  |
 | assets | 类型：String[]，资产 |  |
 | nodes | 类型：String[]，节点 |  |
 | accounts | 类型：String[]，授权账号 |  |

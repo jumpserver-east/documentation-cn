@@ -1,3 +1,5 @@
+> **说明：** 本页涉及的改密计划及其执行接口（`/api/v1/accounts/change-secret-automations/`、`/api/v1/accounts/change-secret-automations/{id}/`、`/api/v1/accounts/change-secret-executions/`）为 JumpServer 企业版（XPack）功能，未包含在本仓库 swagger.yml（社区版）基准内，字段定义请以 JumpServer 企业版 API schema 为准。
+
 ## /api/v1/accounts/change-secret-automations/
 
 ### GET
@@ -62,11 +64,12 @@ def search_change_secret_automations(keyword):
         )
         response.raise_for_status()
         nodes_data = response.json()
-        if not nodes_data:
+        count = nodes_data.get("count", 0)
+        if count == 0:
             print(f"未找到改密计划")
         else:
-            print(f"查询到 {len(nodes_data)} 个匹配的改密计划：")
-            print(json.dumps(nodes_data, indent = 2, ensure_ascii = False))
+            print(f"查询到 {count} 个匹配的改密计划：")
+            print(json.dumps(nodes_data.get("results", []), indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
 
@@ -102,6 +105,18 @@ if __name__ == "__main__":
 | date_created | 类型：String[date]，创建时间 |  |
 | date_updated | 类型：String[date]，更新时间 |  |
 | created_by | 类型：String，创建人 |  |
+
+- **使用案例：**
+
+场景：季度安全审计前，运维人员按名称关键字检索生产环境相关的改密计划，确认生产资产的账号均已纳入定期改密范围。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/change-secret-automations/?search=prod&offset=0&limit=15' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 
 
 ### POST
@@ -224,6 +239,33 @@ if __name__ == "__main__":
 | date_updated | 类型：String[date]，更新时间 |  |
 | created_by | 类型：String，创建人 |  |
 
+- **使用案例：**
+
+场景：一批新交付的 MySQL 数据库服务器上线，为其 root 账号创建每周六凌晨 3 点自动轮换的随机密码改密计划，密码长度 20 位。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/change-secret-automations/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "mysql-root-weekly-rotate",
+        "accounts": ["root"],
+        "assets": ["1f6a2c3e-8b4d-4f2a-9c1e-5d7b8a9e0f12"],
+        "secret_strategy": "random",
+        "secret_type": "password",
+        "password_rules": {
+            "length": "20"
+        },
+        "is_periodic": true,
+        "crontab": "0 3 * * 6",
+        "is_active": true,
+        "comment": "新交付 MySQL 服务器 root 账号每周轮换"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 
 ## /api/v1/accounts/change-secret-automations/{id}/
 ### PUT
@@ -238,11 +280,16 @@ if __name__ == "__main__":
 | X-JMS-ORG | 00000000-0000-0000-0000-000000000002 | 00000000-0000-0000-0000-000000000002为组织ID，此id号为默认组织：Default，留空则默认为 Default 组织。 |
 | Content-Type | application/json | 输出为json格式 |
 
+- **路径参数（Path）：** 
+
+| 参数名 | 描述 | 默认值 |
+| --- | --- | --- |
+| id* | 类型：String，改密计划ID，通过 URL 路径传递 | - |
+
 - **请求体参数（Body）：** 
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| id* | 类型：String，改密计划ID | - |
 | name* | 类型：String，名称 | - |
 | accounts* | 类型：String[]，资产账户名 | - |
 | assets | 类型：String[]，资产ID | - |
@@ -253,8 +300,8 @@ if __name__ == "__main__":
 | interval | 类型：String，周期执行 | is_periodic=true时填写，默认24 |
 | secret_strategy* | 类型：String，密文生成策略 | 默认: 指定specific；随机：random |
 | secret_type* | 类型：String，密文类型 | 默认：password；可选值：ssh_key |
-| password_rules | 类型：int，随机密码长度 | 默认30；secret_strategy=random且secret_type=password时必填 |
-| secret | 类型：String，密码 | secret_strateg=specific且secret_type=password时必填 |
+| password_rules | 类型：Object，密码生成规则。子字段：length（int，密码长度，范围 8-36，默认 16）；可选子字段：lowercase/uppercase/digit/symbol（Boolean）、exclude_symbols（String） | 默认16；secret_strategy=random且secret_type=password时必填 |
+| secret | 类型：String，密码 | secret_strategy=specific且secret_type=password时必填 |
 | comment | 类型：String，备注 | - |
 
 > 注：带 * 的参数为必填项。
@@ -367,6 +414,33 @@ if __name__ == "__main__":
 | date_updated | 类型：String[date]，更新时间 |  |
 | created_by | 类型：String，创建人 |  |
 
+- **使用案例：**
+
+场景：公司密码安全策略升级，将既有改密计划的随机密码长度由 16 位提高到 24 位，并把执行周期从每周缩短为每 24 小时一次。
+
+```sh
+curl -X PUT 'https://localhost/api/v1/accounts/change-secret-automations/0a6a2e40-f92b-4aca-94ef-5f6ae5b0966c/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "mysql-root-weekly-rotate",
+        "accounts": ["root"],
+        "assets": ["1f6a2c3e-8b4d-4f2a-9c1e-5d7b8a9e0f12"],
+        "secret_strategy": "random",
+        "secret_type": "password",
+        "password_rules": {
+            "length": "24"
+        },
+        "is_periodic": true,
+        "interval": 24,
+        "is_active": true,
+        "comment": "安全策略升级：密码长度 24 位，每 24 小时轮换"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ### DELETE
 - **描述：**
 删除改密计划
@@ -379,11 +453,11 @@ if __name__ == "__main__":
 | X-JMS-ORG | `00000000-0000-0000-0000-000000000002` | 组织 ID，不传则默认归属 `Default` 组织 |
 | Content-Type | `application/json` | 请求/响应体为 JSON 格式 |
 
-- **请求体参数（Body）：**  
+- **路径参数（Path）：**  
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| id* | 类型：String，改密计划ID | - |
+| id* | 类型：String，改密计划ID，通过 URL 路径传递（DELETE 请求不携带请求体） | - |
 
 > 注：带 * 的参数为必填项。
 **请求示例**
@@ -439,6 +513,18 @@ if __name__ == "__main__":
     delete_change_secret_automations()
 ```
 
+- **使用案例：**
+
+场景：一批老旧 Windows 服务器完成下线回收，其关联的改密计划不再需要，运维在资产清理流程的最后一步删除该计划，避免任务继续空跑报错。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/accounts/change-secret-automations/7c3d9e5a-2b1f-4e8c-a6d4-9f0b3c7e1a58/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ## /api/v1/accounts/change-secret-executions/
 
 ### POST
@@ -468,7 +554,7 @@ if __name__ == "__main__":
 curl -X POST 'https://localhost/api/v1/accounts/change-secret-executions/' \
     -H 'Content-Type: application/json' \
     -H 'Authorization: Bearer b96810faac725563304dada8c323c4fa061863d4' \
-    -H 'X-JMS-ORG: 00000000-0000-0000-000000000002' \
+    -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002' \
     -d '{
         "automation": "bc778562-630e-4c89-971a-3ec629d4fd3f"
     }'
@@ -528,3 +614,19 @@ if __name__ == "__main__":
 | 字段名称 | 字段描述 | 备注 |
 | --- | --- | --- |
 | task | 类型：String，任务id |  |
+
+- **使用案例：**
+
+场景：核心运维人员离职当天，安全团队不等待周期调度，立即手动触发其接触过的生产服务器改密计划，实现特权账号密码的即时轮换。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/change-secret-executions/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "automation": "bc778562-630e-4c89-971a-3ec629d4fd3f"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)

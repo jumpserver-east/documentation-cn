@@ -1,4 +1,4 @@
-## /api/v1/users/groups/{id}/
+## /api/v1/users/groups/
 
 ### POST
 
@@ -18,7 +18,7 @@
 | 参数名 | 描述 | 可选值 |
 | --- | --- | --- |
 | name* | 类型：string，名称 | - |
-| users | 类型：string[]，用户 | - |
+| users | 类型：object[]，用户；每个元素包含 id（string）、name（string）、is_service_account（boolean） | - |
 
 > 注：带 * 的参数为必填项。
 - **返回参数：**
@@ -29,8 +29,7 @@
 | name | 类型：String，用户组名称 |  |
 | comment | 类型：String，备注 |  |
 | created_by | 类型：String，创建者 |  |
-| users | 类型：String[]，用户 |  |
-| users_amount | 类型：String，用户数量 |  |
+| users | 类型：Object[]，用户；每个元素包含 id（string）、name（string）、is_service_account（boolean） |  |
 | org_id | 类型：String，组织 |  |
 | org_name | 类型：String，组织名称 |  |
 | date_created | 类型：String，创建时间 |  |
@@ -94,6 +93,28 @@ def create_users_group():
 if __name__ == "__main__":
     create_users_group()
 ```
+
+- **使用案例：**
+
+场景：公司新组建数据库运维团队，管理员创建 `dba-team` 用户组，并在创建时直接将成员 zhangsan、lisi 加入该组，便于后续按组批量授权数据库资产。
+
+```sh
+curl -X POST 'https://localhost/api/v1/users/groups/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'Content-Type: application/json' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "dba-team",
+        "users": [
+            {"id": "0f6a3fea-1b8f-4e4a-9b8e-2f4d5c6a7b8c", "name": "zhangsan"},
+            {"id": "9c2d4e6f-3a5b-4c7d-8e9f-1a2b3c4d5e6f", "name": "lisi"}
+        ]
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)
+
+## /api/v1/users/groups/{id}/
 
 ### DELETE
 
@@ -161,3 +182,15 @@ def delete_users_group():
 if __name__ == "__main__":
     delete_users_group()
 ```
+
+- **使用案例：**
+
+场景：外包驻场项目验收结束，管理员删除临时用户组 `outsource-temp`（组 ID 已提前查询获得），及时回收该组关联的资产授权，避免权限残留。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/users/groups/5e8b2c1d-4f6a-4b3c-9d2e-7a8b9c0d1e2f/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)

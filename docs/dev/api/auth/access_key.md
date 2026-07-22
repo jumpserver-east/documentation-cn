@@ -11,7 +11,7 @@ Access Key 使用请求签名机制（HMAC-SHA256），无需用户名密码。�
 **请求示例：**
 
 ```python
-# pip install requests drf-httpsighttpsig
+# pip install requests httpsig
 import requests, datetime, json
 from httpsig.requests_auth import HTTPSignatureAuth
 
@@ -39,6 +39,30 @@ def get_user_info():
 
 if __name__ == '__main__':
     get_user_info()
+```
+
+- **使用案例：**
+
+场景：运维平台的夜间对账脚本不便保存账号密码，改用 Access Key 签名方式调用接口，核对指定用户 zhangsan 的账号是否仍然有效。
+
+```sh
+API_URL='https://demo.jumpserver.org'
+KEY_ID='<AccessKeyID>'
+KEY_SECRET='<AccessKeySecret>'
+REQUEST_TARGET='get /api/v1/users/users/?username=zhangsan'
+DATE=$(date -u '+%a, %d %b %Y %H:%M:%S GMT')
+
+SIGNING_STRING="(request-target): ${REQUEST_TARGET}
+accept: application/json
+date: ${DATE}"
+
+SIGNATURE=$(printf '%s' "$SIGNING_STRING" | openssl dgst -sha256 -hmac "$KEY_SECRET" -binary | base64)
+
+curl "${API_URL}/api/v1/users/users/?username=zhangsan" \
+  -H 'Accept: application/json' \
+  -H "Date: ${DATE}" \
+  -H 'X-JMS-ORG: <组织ID>' \
+  -H "Authorization: Signature keyId=\"${KEY_ID}\",algorithm=\"hmac-sha256\",headers=\"(request-target) accept date\",signature=\"${SIGNATURE}\""
 ```
 
 **注意事项**

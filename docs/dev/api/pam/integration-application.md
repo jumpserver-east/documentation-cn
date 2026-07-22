@@ -57,6 +57,18 @@ curl -X GET 'https://localhost/api/v1/accounts/integration-applications/?offset=
 	-H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002'
 ```
 
+- **使用案例：**
+
+场景：安全巡检时，按关键词检索名称包含 jenkins 的集成应用，确认相关 CI 应用是否仍处于启用状态。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/integration-applications/?search=jenkins&limit=10&offset=0' \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ### POST
 - **描述：**
 创建集成应用，需指定名称、授权账号等信息。
@@ -101,6 +113,26 @@ curl -X POST 'https://localhost/api/v1/accounts/integration-applications/' \
 	}'
 ```
 
+- **使用案例：**
+
+场景：为 CMDB 定时同步脚本创建专属集成应用，仅授权指定账号，并限制只能从内网同步服务器网段访问。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/integration-applications/' \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>' \
+	-H 'Content-Type: application/json' \
+	-d '{
+		"name": "cmdb-sync",
+		"accounts": {"ids": ["1c3f9a2e-5b6d-4e7f-8a9b-0c1d2e3f4a5b"]},
+		"ip_group": ["192.168.10.0/24"],
+		"is_active": true,
+		"comment": "CMDB 定时同步脚本专用"
+	}'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ## /api/v1/accounts/integration-applications/{id}/
 
 ### GET
@@ -126,6 +158,18 @@ curl -X POST 'https://localhost/api/v1/accounts/integration-applications/' \
 - **返回参数：**
 
 返回字段同 GET 列表接口中 `results[]` 字段说明。
+
+- **使用案例：**
+
+场景：处理密钥调用异常告警工单时，根据应用 ID 查看该集成应用详情，核对授权账号数量与最近使用时间。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/integration-applications/8f2f6f3e-9d5c-4c1b-b6a7-2f0c9d8e7a61/' \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 
 ### PUT / PATCH
 - **描述：**
@@ -155,6 +199,20 @@ curl -X POST 'https://localhost/api/v1/accounts/integration-applications/' \
 
 返回字段同 GET 列表接口中 `results[]` 字段说明。
 
+- **使用案例：**
+
+场景：发现某集成应用的密钥疑似外泄，先通过 PATCH 将其临时停用，阻断外部调用后再排查。
+
+```sh
+curl -X PATCH 'https://localhost/api/v1/accounts/integration-applications/8f2f6f3e-9d5c-4c1b-b6a7-2f0c9d8e7a61/' \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>' \
+	-H 'Content-Type: application/json' \
+	-d '{"is_active": false}'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ### DELETE
 - **描述：**
 删除指定集成应用。
@@ -177,6 +235,18 @@ curl -X POST 'https://localhost/api/v1/accounts/integration-applications/' \
 - **返回参数：**
 
 删除成功返回 204，无返回体。
+
+- **使用案例：**
+
+场景：老旧监控平台已下线，删除其对应的集成应用，彻底回收该平台的 API 访问权限。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/accounts/integration-applications/3a7d5c1b-0e9f-4b8a-9c6d-5e4f3a2b1c0d/' \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 
 ## /api/v1/accounts/integration-applications/{id}/secret/
 
@@ -204,6 +274,18 @@ curl -X POST 'https://localhost/api/v1/accounts/integration-applications/' \
 
 返回字段同 GET 列表接口中 `results[]` 字段说明，敏感信息仅在首次请求时返回。
 
+- **使用案例：**
+
+场景：新建集成应用 cmdb-sync 后，管理员首次调用本接口获取一次性密文，并立即将其写入同步服务器的凭据管理工具，避免在脚本中硬编码。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/integration-applications/1f6b2c8d-4e5a-4b7c-9d0e-3a2b1c4d5e6f/secret/' \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ## /api/v1/accounts/integration-applications/account-secret/
 
 ### GET
@@ -225,4 +307,16 @@ curl -X POST 'https://localhost/api/v1/accounts/integration-applications/' \
 | asset_id | 类型：String(UUID)，资产 ID | 可能为空 |
 | account | 类型：String，账号名称 |  |
 | account_id | 类型：String(UUID)，账号 ID | 可能为空 |
+
+- **使用案例：**
+
+场景：安全审计平台每周定时拉取各集成应用关联账号的脱敏清单，与变更工单核对实际授权范围是否一致。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/integration-applications/account-secret/' \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 

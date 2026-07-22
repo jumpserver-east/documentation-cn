@@ -58,18 +58,26 @@ nav:
     - accounts: dev/api/accounts/accounts.md
     - accountsecrets: dev/api/accounts/accountsecrets.md
   - PAM:
-    - integration-applications: dev/api/pam/intergration-application.md  
-    - account_backup:  dev/api/pam/account_backup.md
-    - change-secret-automations:  dev/api/pam/changepwd.md
-    - account-backup-plans:  dev/api/pam/account_backup.md
+    - integration-applications: dev/api/pam/integration-application.md
+    - change-secret-automations: dev/api/pam/changepwd.md
+    - account-backup-plans: dev/api/pam/account_backup.md
   - 工单: 
     - ticket: dev/api/ticket/ticket.md
-  - 健康检查: 
+  - 健康检查:
     - health: dev/api/health/health.md
   - 审计:
     - audit-query: dev/api/audits/audit_query.md
   - 终端:
     - metrics: dev/api/terminal/metrics.md
+  - 实战案例:
+    - 生成用户免密直连资产 URL: dev/api/examples/direct_connect_url.md
+    - 对接外部工单系统: dev/api/examples/external_ticket.md
+    - 外部系统申请资产并自动授权: dev/api/examples/asset_sync_authorize.md
+    - 外部系统一键审计: dev/api/examples/one_click_audit.md
+    - 用户生命周期自动化: dev/api/examples/user_lifecycle.md
+    - 免硬编码获取账号密码: dev/api/examples/secret_retrieval.md
+    - 健康检查与监控集成: dev/api/examples/monitor_integration.md
+    - 审计日志对接 SIEM: dev/api/examples/siem_export.md
 
 markdown_extensions:
   - admonition

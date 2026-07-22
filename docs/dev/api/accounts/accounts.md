@@ -17,14 +17,14 @@
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
 | name | 类型：String，名称 | - |
-| username* | 类型：String，用户名 | - |
-| secret_type* | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥） | password |
+| username | 类型：String，用户名 | - |
+| secret_type | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥），默认为 `password` | password |
 | secret | 类型：String，密钥/密码，仅在 `secret_type` 字段选用 `password` 时启用 | - |
 | passphrase | 类型：String，密钥密码，仅在 `secret_type` 字段选用 `ssh_key` 时启用 | - |
 | comment | 类型：String，备注 | - |
-| assets* | 类型：String[]，资产 | - |
+| asset* | 类型：String，资产 ID（UUID）；响应中该字段为 AccountAsset 对象（含 id、name、address 等），请求时传资产 ID 字符串即可 | - |
 | privileged | 类型：Boolean，特权账号 | - |
-| push_now | 类型：String，立即推送 | - |
+| push_now | 类型：Boolean，立即推送 | false |
 | is_active | 类型：Boolean，激活 | - |
 
 > 注：带 * 的参数为必填项。
@@ -35,16 +35,15 @@
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | username | 类型：String，用户名 |  |
-| secret_type | 类型：String，密码类型 |  |
+| secret_type | 类型：Object（含 value、label 字段），密文类型 |  |
 | created_by | 类型：String，创建者 |  |
 | comment | 类型：String，备注 |  |
-| su_from | 类型：String，sudo用户 |  |
-| asset | 类型：String，资产薪资 |  |
-| source | 类型：String，来源 |  |
-| connectivity | 类型：String，连通性 |  |
+| su_from | 类型：Object（含 id、name、username 字段），切换自账号 |  |
+| asset | 类型：Object（AccountAsset 对象，含 id、name、address、type、category、platform 等字段），资产信息 |  |
+| source | 类型：Object（含 value、label 字段），来源 |  |
+| connectivity | 类型：Object（含 value、label 字段），连通性 |  |
 | org_id | 类型：String，组织 |  |
 | org_name | 类型：String，组织名称 |  |
-| has_secret | 类型：Boolean，是否有密码 |  |
 | privileged | 类型：Boolean，是否有特权账号 |  |
 | is_active | 类型：Boolean，激活 |  |
 
@@ -113,6 +112,29 @@ if __name__ == "__main__":
     create_assets_accounts()
 ```
 
+- **使用案例：**
+
+场景：新上线一台 Linux 服务器 `web-server-01` 后，将其部署账号 `deploy` 纳入平台统一托管，并在创建时立即推送到资产，避免手工登录改密。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/accounts/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "web-server-01-deploy",
+        "username": "deploy",
+        "secret_type": "password",
+        "secret": "Dep@2026#Init",
+        "asset": "09e1e072-1498-42f7-a6b1-567c2db56f59",
+        "privileged": false,
+        "push_now": true,
+        "comment": "web-server-01 上线纳管，账号由平台托管"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ### GET
 - **描述:**
 查询账号
@@ -129,14 +151,13 @@ if __name__ == "__main__":
 | 字段名称 | 字段描述 | 备注 |
 | --- | --- | --- |
 | asset | 类型：Object，资产 |  |
-| connectivity | 类型：String，可连接性 |  |
+| connectivity | 类型：Object（含 value、label 字段），可连接性 |  |
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | privileged | 类型：Boolean，是否特权账号 |  |
 | username | 类型：String，账号名 |  |
-| secret | 类型：String，密码 |  |
 | secret_type | 类型：Object，密文类型 |  |
-| source | 类型：String，来源 |  |
+| source | 类型：Object（含 value、label 字段），来源 |  |
 | is_active | 类型：Boolean，激活中 |  |
 | created_by | 类型：String，创建者 |  |
 | date_created | 类型：String(date-time)，创建时间 |  |
@@ -145,7 +166,7 @@ if __name__ == "__main__":
 
 **CURL**
 ```sh
-curl -X GET 'https://localhost/api/v1/accounts/accounts/?node_id=&asset_id=a014d307-7c2b-4788-a3e0aebd01ddf761&has_secret=true&offset=0&limit=15' \
+curl -X GET 'https://localhost/api/v1/accounts/accounts/?asset_id=a014d307-7c2b-4788-a3e0-aebd01ddf761&has_secret=true&offset=0&limit=15' \
     -H 'Content-Type:application/json' \
     -H 'Authorization: Bearer b96810faac725563304dada8c323c4fa061863d4' \
     -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002'
@@ -192,17 +213,32 @@ def search_assets_accounts():
         )
         response.raise_for_status()
         accounts_data = response.json()
-        if not accounts_data:
-            print(f"未找到匹配的资产账号")
+        results = accounts_data.get("results", [])
+        total = accounts_data.get("count", 0)
+        if total == 0:
+            print("未找到匹配的资产账号")
         else:
-            print(f"查询到 {len(accounts_data)} 个匹配的资产账号：")
-            print(json.dumps(accounts_data, indent = 2, ensure_ascii = False))
+            print(f"查询到 {total} 个匹配的资产账号：")
+            print(json.dumps(results, indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
 
 if __name__ == "__main__":
     search_assets_accounts()
 ```
+
+- **使用案例：**
+
+场景：季度安全审计时，盘点全组织内所有仍处于激活状态的 `root` 特权账号，输出清单供审计人员核对是否存在越权托管。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/accounts/?username=root&privileged=true&is_active=true&limit=100' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
 
 ## /api/v1/accounts/accounts/{id}/
 
@@ -277,6 +313,19 @@ if __name__ == "__main__":
     delete_assets_accounts()
 ```
 
+- **使用案例：**
+
+场景：数据库服务器 `db-server-02` 已按计划下线，运维在资产退库流程中清理其上遗留的托管账号 `dba_backup`，防止失效凭据继续留存在平台。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/accounts/accounts/6f2ab8c1-3d54-4e0a-9c77-1b2f0c5d8e9a/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)
+
 ### PUT / PATCH
 - **描述：**
 更新资产账号
@@ -294,17 +343,17 @@ if __name__ == "__main__":
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
 | name | 类型：String，名称 | - |
-| username* | 类型：String，用户名 | - |
-| secret_type* | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥） | password |
+| username | 类型：String，用户名 | - |
+| secret_type | 类型：String，密文类型，可选值为 `password`（密码）、`ssh_key`（SSH 密钥），默认为 `password` | password |
 | secret | 类型：String，密钥/密码，仅在 `secret_type` 字段选用 `password` 时启用 | - |
 | passphrase | 类型：String，密钥密码，仅在 `secret_type` 字段选用 `ssh_key` 时启用 | - |
 | comment | 类型：String，备注 | - |
-| assets* | 类型：String[]，资产 | - |
+| asset* | 类型：String，资产 ID（UUID）；响应中该字段为 AccountAsset 对象（含 id、name、address 等），请求时传资产 ID 字符串即可 | - |
 | privileged | 类型：Boolean，特权账号 | - |
-| push_now | 类型：String，立即推送 | - |
+| push_now | 类型：Boolean，立即推送 | false |
 | is_active | 类型：Boolean，激活 | - |
 
-> 注：带 * 的参数为必填项。
+> 注：带 * 的参数为必填项（必填约束仅适用于 PUT；PATCH 时所有字段均可选）。
 - **返回参数：**  
 
 | 字段名称 | 字段描述 | 备注 |
@@ -312,16 +361,15 @@ if __name__ == "__main__":
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
 | username | 类型：String，用户名 |  |
-| secret_type | 类型：String，密码类型 |  |
+| secret_type | 类型：Object（含 value、label 字段），密文类型 |  |
 | created_by | 类型：String，创建者 |  |
 | comment | 类型：String，备注 |  |
-| su_from | 类型：String，sudo用户 |  |
-| asset | 类型：String，资产薪资 |  |
-| source | 类型：String，来源 |  |
-| connectivity | 类型：String，连通性 |  |
+| su_from | 类型：Object（含 id、name、username 字段），切换自账号 |  |
+| asset | 类型：Object（AccountAsset 对象，含 id、name、address、type、category、platform 等字段），资产信息 |  |
+| source | 类型：Object（含 value、label 字段），来源 |  |
+| connectivity | 类型：Object（含 value、label 字段），连通性 |  |
 | org_id | 类型：String，组织 |  |
 | org_name | 类型：String，组织名称 |  |
-| has_secret | 类型：Boolean，是否有密码 |  |
 | privileged | 类型：Boolean，是否有特权账号 |  |
 | is_active | 类型：Boolean，激活 |  |
 
@@ -391,3 +439,21 @@ def update_assets_accounts():
 if __name__ == "__main__":
     update_assets_accounts()
 ```
+
+- **使用案例：**
+
+场景：应急响应中发现账号 `appadmin` 疑似泄露，运维在目标主机上手工重置密码后，用 PATCH 仅同步更新平台托管的密文并补充备注，不改动账号其他属性。
+
+```sh
+curl -X PATCH 'https://localhost/api/v1/accounts/accounts/f3280232-113a-4135-a908-eddd1d9f27b6/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "secret_type": "password",
+        "secret": "Emg@Reset#0722",
+        "comment": "2026-07-22 应急改密，工单 INC-20260722-013"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)

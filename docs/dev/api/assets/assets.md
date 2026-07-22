@@ -17,10 +17,10 @@
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
 | name* | 类型：String，名称 | - |
-| addrs* | 类型：String，IP地址 | - |
-| platform* | 类型：String，系统平台，示例值：1（代表Linux）、5（代表Windows） | - |
-| nodes* | 类型：String[]，节点 | - |
-| protocols | 类型：String[]，协议/端口，参数格式示例：`{"name": "ssh", "port": 22}` | - |
+| address* | 类型：String，IP地址 | - |
+| platform* | 类型：Object，系统平台，含 id/name/type 属性的平台对象，参数格式示例：`{"id": 1}`，平台 ID 示例值：1（代表Linux）、5（代表Windows） | - |
+| nodes | 类型：String[]，节点 | [] |
+| protocols | 类型：Object[]，协议/端口，参数格式示例：`{"name": "ssh", "port": 22}` | - |
 | labels | 类型：String[]，标签 | - |
 | is_active | 类型：Boolean，激活状态 | true |
 | accounts | 类型：String[]，账号信息 | - |
@@ -33,12 +33,12 @@
 | --- | --- | --- |
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
-| addrs | 类型：String，ip |  |
+| address | 类型：String，ip |  |
 | comment | 类型：String，备注 |  |
 | platform | 类型：String，系统平台 |  |
 | nodes | 类型：String[]，节点 |  |
 | labels | 类型：String[]，标签 |  |
-| protocols | 类型：String，协议/端口 |  |
+| protocols | 类型：Object[]，协议/端口，元素格式示例：`{"name": "ssh", "port": 22}` |  |
 | nodes_display | 类型：String[]，资产节点名称 |  |
 | category | 类型：String，类别 |  |
 | type | 类型：String，类型 |  |
@@ -59,9 +59,9 @@ curl -X POST 'https://localhost/api/v1/assets/hosts/' \
     -d '{
         "name":"test_create_asset",
         "address":"192.168.1.1",
-        "platform": {"pk":1},
+        "platform": {"id":1},
         "nodes": [
-            {"pk":"1ecb988f-ded3-4b57-bc8f-808467abbe2f"}
+            {"id":"1ecb988f-ded3-4b57-bc8f-808467abbe2f"}
         ]
     }'
 ```
@@ -98,9 +98,9 @@ def create_assets():
     data = {
         "name":"test_create_asset",
         "address":"192.168.1.1",
-        "platform": {"pk":1},
+        "platform": {"id":1},
         "nodes": [
-            {"pk": NODE_ID}
+            {"id": NODE_ID}
         ]
     }
 
@@ -118,6 +118,31 @@ def create_assets():
 if __name__ == "__main__":
     create_assets()
 ```
+
+- **使用案例：**
+
+场景：CMDB 系统新上架一台生产环境 Linux 应用服务器，运维平台自动将其纳管到 JumpServer 的生产节点，并按公司规范登记非标 SSH 端口。
+
+```sh
+curl -X POST 'https://localhost/api/v1/assets/hosts/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "web-server-01",
+        "address": "10.10.20.11",
+        "platform": {"id": 1},
+        "protocols": [
+            {"name": "ssh", "port": 22022}
+        ],
+        "nodes": [
+            {"id": "1ecb988f-ded3-4b57-bc8f-808467abbe2f"}
+        ],
+        "is_active": true
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)
 
 
 
@@ -193,3 +218,16 @@ def delete_assets_hosts():
 if __name__ == "__main__":
     delete_assets_hosts()
 ```
+
+- **使用案例：**
+
+场景：一台旧数据库服务器完成业务迁移后退役下线，资产回收流程调用接口将其从 JumpServer 中删除，避免残留无效资产与授权入口。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/assets/hosts/3f8c9a52-7d14-4e06-b2ab-56cd7e10f983/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)

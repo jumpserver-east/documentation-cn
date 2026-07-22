@@ -49,6 +49,17 @@ if __name__ == '__main__':
     get_user_info()
 ```
 
+- **使用案例：**
+
+场景：运维平台的夜间定时审计任务使用永久 Token（无需担心过期中断），拉取当前组织内已过期但仍处于激活状态的账号清单，生成账号安全日报。
+
+```sh
+curl "https://demo.jumpserver.org/api/v1/users/users/?is_expired=true&is_active=true&limit=20" \
+    -H 'Authorization: Token <private_token>' \
+    -H 'Content-Type: application/json' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
 **注意事项**
 
 - Private Token 拥有与创建者相同权限，务必妥善保管。

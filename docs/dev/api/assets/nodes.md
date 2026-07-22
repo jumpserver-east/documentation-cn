@@ -12,15 +12,14 @@
 | X-JMS-ORG | `00000000-0000-0000-0000-000000000002` | 组织 ID，不传则默认归属 `Default` 组织 |
 | Content-Type | `application/json` | 请求/响应体为 JSON 格式 |
 
-- **请求体参数（Body）：**
+- **查询参数（Query Params）：**
 
 | 参数名 | 描述 | 可选值 |
 | --- | --- | --- |
-| search | 类型：String，搜索词 | - |
-| limit* | 类型：int，每一页显示条数，支持节点名搜索 | - |
-| offset* | 类型：int，分页偏移量 | - |
+| search | 类型：String，搜索词，支持节点名搜索 | - |
+| limit | 类型：int，每一页显示条数 | - |
+| offset | 类型：int，分页偏移量 | - |
 
-> 注：带 * 的参数为必填项。
 - **返回参数：**
 
 | 字段名称 | 字段描述 | 备注 |
@@ -29,7 +28,7 @@
 | key | 类型：String，键 |  |
 | value | 类型：String，值\节点名称 |  |
 | org_id | 类型：String，组织 |  |
-| name | 类型：String[]，用户 |  |
+| name | 类型：String，节点名称（只读） |  |
 | full_value | 类型：String，全称 |  |
 | org_name | 类型：String，组织名称 |  |
 
@@ -82,10 +81,11 @@ def search_nodes(keyword):
         )
         response.raise_for_status()
         nodes_data = response.json()
-        if not nodes_data:
+        nodes = nodes_data.get("results", [])
+        if not nodes:
             print("未找到匹配的资产节点")
         else:
-            print(f"查询到 {len(nodes_data)} 个匹配的资产节点：")
+            print(f"查询到 {nodes_data['count']} 个匹配的资产节点：")
             print(json.dumps(nodes_data, indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
@@ -96,18 +96,36 @@ if __name__ == "__main__":
 - **响应示例：**
 
 ```json
-[
-  {
-    "id": "aa2aa3fe-c2c3-49ca-b4bd-d04dc8bf6693",
-    "key": "1",
-    "value": "DEFAULT",
-    "org_id": "00000000-0000-0000-0000-000000000002",
-    "name": "DEFAULT",
-    "full_value": "/DEFAULT",
-    "org_name": "DEFAULT"
-  }
-]
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "aa2aa3fe-c2c3-49ca-b4bd-d04dc8bf6693",
+      "key": "1",
+      "value": "DEFAULT",
+      "org_id": "00000000-0000-0000-0000-000000000002",
+      "name": "DEFAULT",
+      "full_value": "/DEFAULT",
+      "org_name": "DEFAULT"
+    }
+  ]
+}
 ```
+
+- **使用案例：**
+
+场景：CMDB 系统与堡垒机做资产结构对账，先按节点名搜索"生产环境"节点确认其是否已存在，并限制每页返回 20 条以便分页遍历。
+
+```sh
+curl -X GET 'https://localhost/api/v1/assets/nodes/?search=生产环境&limit=20&offset=0' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)
 
 ##  /api/v1/assets/nodes/{id}/children/
 
@@ -133,9 +151,8 @@ if __name__ == "__main__":
 
 | 参数名 | 描述 | 可选值 |
 | --- | --- | --- |
-| value* | 类型：String，节点名称 | - |
+| value | 类型：String，节点名称；swagger 定义中该字段非必填（nullable），但创建节点时建议传入以指定节点名称 | - |
 
-> 注：带 * 的参数为必填项。
 - **返回参数：**
 
 | 字段名称 | 字段描述 | 备注 |
@@ -144,7 +161,7 @@ if __name__ == "__main__":
 | key | 类型：String，键 |  |
 | value | 类型：String，值\节点名称 |  |
 | org_id | 类型：String，组织 |  |
-| name | 类型：String[]，用户 |  |
+| name | 类型：String，节点名称（只读） |  |
 | full_value | 类型：String，全称 |  |
 | org_name | 类型：String，组织名称 |  |
 
@@ -208,6 +225,20 @@ def create_children_nodes(node_id, node_name):
 if __name__ == "__main__":
     create_children_nodes(NODE_ID, NODE_NAME)
 ```
+
+- **使用案例：**
+
+场景：新业务线"电商中台"上线，运维平台在"生产环境"节点（ID 为 `3728f004-99a2-4fca-9577-84d5ffcf9eff`）下自动创建同名子节点，供后续批量纳管该业务线的服务器。
+
+```sh
+curl -X POST 'https://localhost/api/v1/assets/nodes/3728f004-99a2-4fca-9577-84d5ffcf9eff/children/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{"value":"电商中台"}'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)
 
 ##  /api/v1/assets/nodes/{id}/ 
 
@@ -282,3 +313,16 @@ def delete_assets_nodes(node_id):
 if __name__ == "__main__":
     delete_assets_nodes(NODE_ID)
 ```
+
+- **使用案例：**
+
+场景：老旧项目"报表系统"整体下线，其资产已全部迁出，管理员在清理脚本中删除该项目对应的空节点（ID 为 `89c68ef6-7790-4f20-8f8d-fdd76d229b3d`），保持资产树整洁。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/assets/nodes/89c68ef6-7790-4f20-8f8d-fdd76d229b3d/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)

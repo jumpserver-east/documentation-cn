@@ -36,7 +36,7 @@
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：list，密码策略 | email / custom 等 |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 | true表示系统内部账号 |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -109,6 +109,18 @@ if __name__ == "__main__":
     print(json.dumps(result, indent = 2, ensure_ascii = False))
 ```
 
+- **使用案例：**
+
+场景：季度安全审计前，运维需要拉取所有来源为 LDAP 且已被停用的账号清单，核对域账号回收是否遗漏。
+
+```sh
+curl -X GET 'https://localhost/api/v1/users/users/?source=ldap&is_active=false&limit=100' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)
+
 ### POST
 
 - **描述：**
@@ -132,13 +144,13 @@ if __name__ == "__main__":
 | wechat | 类型：string，微信 | - |
 | phone | 类型：string，手机 | - |
 | groups | 类型：string[]，用户组 ID 列表 | - |
-| password* | 类型：string，密码（当 password_strategy=custom 时必填） | - |
+| password | 类型：string，密码（当 password_strategy=custom 时必填） | - |
 | need_update_password | 类型：boolean，是否下次登录需修改密码 | 默认 false；[true,false] |
 | public_key | 类型：string，SSH 公钥 | - |
-| system_roles* | 类型：object[]/string[]，系统角色 | 元素含 pk ID |
-| org_roles* | 类型：object[]/string[]，组织角色 | 元素含 pk ID |
-| password_strategy | 类型：string，密码策略 | email / custom；email=邮件设置密码 |
-| source | 类型：string，用户来源 | 默认 default；local/ldap/openid/radius/cas/saml2/oauth2/custom |
+| system_roles | 类型：object[]/string[]，系统角色 | 元素含 pk ID |
+| org_roles | 类型：object[]/string[]，组织角色 | 元素含 pk ID |
+| password_strategy | 类型：string，密码策略 | email / custom；email=邮件设置密码；请求中传字符串值（如 "email"/"custom"），响应中返回为 object |
+| source | 类型：string，用户来源 | 默认 local；可选 local/ldap/ldap_ha/openid/radius/cas/saml2/oauth2/wecom/dingtalk/feishu/lark/slack/custom |
 | mfa_level | 类型：integer，MFA 等级 | 0=禁用 1=启用 2=强制 |
 | date_expired | 类型：string(date-time)，用户失效时间 | 例如：2023-02-04T00:54:39.000Z |
 
@@ -164,7 +176,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 | true 表示系统内部账号 |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -264,6 +276,29 @@ if __name__ == "__main__":
     create_user()
 ```
 
+- **使用案例：**
+
+场景：新员工张三入职运维组，人事系统触发开号流程：创建本地账号，密码通过邮件发送设置链接，开启 MFA 并按合同期设置账号失效时间。
+
+```sh
+curl -X POST 'https://localhost/api/v1/users/users/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "张三",
+        "username": "zhangsan",
+        "email": "zhangsan@example.com",
+        "phone": "13800138000",
+        "password_strategy": "email",
+        "source": "local",
+        "mfa_level": 1,
+        "date_expired": "2027-07-21T16:00:00.000Z"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)
+
 ## /api/v1/users/users/{id}/
 
 ### GET
@@ -306,7 +341,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 |  |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -378,6 +413,18 @@ if __name__ == "__main__":
     print(json.dumps(result, indent = 2, ensure_ascii = False))
 ```
 
+- **使用案例：**
+
+场景：用户 zhangsan 提工单反馈无法登录堡垒机，管理员按其用户 ID 查询详情，检查 `is_active`、`is_expired`、`login_blocked` 等字段定位原因。
+
+```sh
+curl -X GET 'https://localhost/api/v1/users/users/3f7b9c2e-8d41-4a5b-9c6d-1e2f3a4b5c6d/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)
+
 ### PUT
 
 - **描述：**
@@ -410,10 +457,10 @@ if __name__ == "__main__":
 | password | 类型：string，密码 | password_strategy=custom 时必填 |
 | need_update_password | 类型：boolean，下次登录需改密 | 默认 false |
 | public_key | 类型：string，SSH 公钥 | - |
-| system_roles* | 类型：object[]/string[]，系统角色 | 元素含 pk |
-| org_roles* | 类型：object[]/string[]，组织角色 | 元素含 pk |
-| password_strategy | 类型：string，密码策略 | email / custom |
-| source | 类型：string，用户来源 | default/local/ldap/... |
+| system_roles | 类型：object[]/string[]，系统角色 | 元素含 pk |
+| org_roles | 类型：object[]/string[]，组织角色 | 元素含 pk |
+| password_strategy | 类型：string，密码策略 | email / custom；请求中传字符串值（如 "email"/"custom"），响应中返回为 object |
+| source | 类型：string，用户来源 | local/ldap/ldap_ha/openid/radius/cas/saml2/oauth2/wecom/dingtalk/feishu/lark/slack/custom |
 | mfa_level | 类型：integer，MFA 等级 | 0=禁用 1=启用 2=强制 |
 | date_expired | 类型：string(date-time)，用户失效时间 | 2023-02-04T00:54:39.000Z |
 
@@ -439,7 +486,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 |  |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -507,11 +554,6 @@ def update_user():
         algorithm = "hmac-sha256",
         headers = signature_headers
     )
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {TOKEN}",
-        "X-JMS-ORG": ORG_ID
-    }
 
     data = {
         "name": "api_test",
@@ -539,6 +581,31 @@ def update_user():
 if __name__ == "__main__":
     update_user()
 ```
+
+- **使用案例：**
+
+场景：员工李四从测试组转岗到运维组，全量更新其显示名称、邮箱与所属用户组，同时延长账号有效期并保留默认角色。
+
+```sh
+curl -X PUT 'https://localhost/api/v1/users/users/9a8b7c6d-5e4f-4a3b-8c1d-0e9f8a7b6c5d/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "李四",
+        "username": "lisi",
+        "email": "lisi@example.com",
+        "groups": ["c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f"],
+        "password_strategy": "email",
+        "source": "local",
+        "mfa_level": 1,
+        "date_expired": "2028-12-31T16:00:00.000Z",
+        "system_roles": [{"pk": "00000000-0000-0000-0000-000000000003"}],
+        "org_roles": [{"pk": "00000000-0000-0000-0000-000000000007"}]
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)
 
 ### PATCH
 
@@ -573,7 +640,7 @@ if __name__ == "__main__":
 | public_key | 类型：string，SSH 公钥 |  |
 | system_roles | 类型：object[]/string[]，系统角色 | 全量替换 |
 | org_roles | 类型：object[]/string[]，组织角色 | 全量替换 |
-| password_strategy | 类型：string，密码策略 | email/custom |
+| password_strategy | 类型：string，密码策略 | email/custom；请求中传字符串值（如 "email"/"custom"），响应中返回为 object |
 | source | 类型：string，用户来源 |  |
 | mfa_level | 类型：integer，MFA 等级 | 0/1/2 |
 | date_expired | 类型：string(date-time)，用户失效时间 |  |
@@ -599,7 +666,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 |  |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -677,6 +744,23 @@ if __name__ == "__main__":
     partial_update_user()
 ```
 
+- **使用案例：**
+
+场景：安全整改要求对具备高危权限的账号 zhaoliu 强制启用 MFA，并要求其下次登录时修改密码，其余信息保持不变。
+
+```sh
+curl -X PATCH 'https://localhost/api/v1/users/users/7e6d5c4b-3a2f-4e1d-9c8b-7a6f5e4d3c2b/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "mfa_level": 2,
+        "need_update_password": true
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)
+
 ### DELETE
 
 - **描述：**
@@ -740,8 +824,7 @@ def delete_user():
             url, auth = auth, headers = headers
         )
         response.raise_for_status()
-        print("用户删除成功:")
-        print(json.dumps(response.json(), indent=2))
+        print(f"用户删除成功: {response.status_code}")
     except Exception as e:
         print(f"API 请求失败:{e}")
         return None
@@ -749,3 +832,15 @@ def delete_user():
 if __name__ == "__main__":
     delete_user()
 ```
+
+- **使用案例：**
+
+场景：员工王五离职，离职工单终审通过后，由自动化脚本删除其堡垒机账号，完成访问权限回收。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/users/users/5b4a3c2d-1e0f-4d9c-8b7a-6f5e4d3c2b1a/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：用户生命周期自动化](../examples/user_lifecycle.md)

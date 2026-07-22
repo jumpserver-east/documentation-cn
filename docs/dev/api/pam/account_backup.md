@@ -12,15 +12,14 @@
 | X-JMS-ORG       | 00000000-0000-0000-0000-000000000002    | 00000000-0000-0000-0000-000000000002 为组织 ID，此 id号为默认组织：Default，留空则默认为 Default 组织。 |
 | Content-Type    | application/json                        | 输出为json格式                                                       |
 
-- **请求体参数（Body）：**  
+- **查询参数（Query）：**  
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
 | name | 类型：String，名称 | - |
-| limit* | 类型：int，每一页显示条数 | - |
-| offset* | 类型：int，分页偏移量 | - |
+| limit | 类型：int，每一页显示条数 | - |
+| offset | 类型：int，分页偏移量 | - |
 
-> 注：带 * 的参数为必填项。
 - **返回参数:**
 
 | 字段名称 | 字段描述 | 备注 |
@@ -36,7 +35,10 @@
 | is_periodic | 类型：Boolean，是否定时执行 |  |
 | interval | 类型：Int，周期执行 |  |
 | crontab | 类型：String，定时执行Crontab表达式 |  |
-| recipients | 类型：List[Object]，收件人 |  |
+| recipients_part_one | 类型：List[Object]，收件人（第一部分），项属性 id/name |  |
+| recipients_part_two | 类型：List[Object]，收件人（第二部分），项属性 id/name |  |
+| obj_recipients_part_one | 类型：List[Object]，对象存储收件人（第一部分），项属性 id/name |  |
+| obj_recipients_part_two | 类型：List[Object]，对象存储收件人（第二部分），项属性 id/name |  |
 | types | 类型：String[]，资产类型 | linux, windows, unix, other, general, switch, "router", "firewall", "mysql", "mariadb", "postgresql", "oracle", "sqlserver", "clickhouse", "mongodb", "redis", "public", "private", "k8s", "website" |
 | date_created | 类型：String[date]，创建时间 |  |
 | date_updated | 类型：String[date]，更新时间 |  |
@@ -93,16 +95,26 @@ def search_account_backup_plans(keyword):
         )
         response.raise_for_status()
         nodes_data = response.json()
-        if not nodes_data:
-            print(f"未找到账号备份策略")
+        if nodes_data["count"] == 0:
+            print("未找到账号备份策略")
         else:
-            print(f"查询到 {len(nodes_data)} 个匹配的账号备份策略：")
-            print(json.dumps(nodes_data, indent = 2, ensure_ascii = False))
+            print(f"查询到 {nodes_data['count']} 个匹配的账号备份策略：")
+            print(json.dumps(nodes_data["results"], indent = 2, ensure_ascii = False))
     except Exception as e:
         print(f"错误:{e}")
 
 if __name__ == "__main__":
     search_account_backup_plans(SEARCH_WORD)
+```
+
+- **使用案例：**
+
+场景：季度安全审计前，审计员需要确认名为"生产数据库账号备份"的备份策略是否仍在定时执行，按名称过滤查询该策略的详细配置。
+
+```sh
+curl -X GET 'https://localhost/api/v1/accounts/account-backup-plans/?name=生产数据库账号备份&offset=0&limit=10' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
 ```
 
 
@@ -124,9 +136,24 @@ if __name__ == "__main__":
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
-| name | 类型：String，名称 | - |
-| limit* | 类型：int，每一页显示条数 | - |
-| offset* | 类型：int，分页偏移量 | - |
+| name* | 类型：String，名称，maxLength 128 | - |
+| types | 类型：String[]，资产类型 | [] |
+| is_periodic | 类型：Boolean，是否定时执行 | true |
+| interval | 类型：Int，周期执行间隔（1-65535），可空 | 24 |
+| crontab | 类型：String，定时执行Crontab表达式，maxLength 128，可空 | - |
+| comment | 类型：String，备注 | - |
+| recipients_part_one | 类型：List[Object]，收件人（第一部分），项属性 id/name | - |
+| recipients_part_two | 类型：List[Object]，收件人（第二部分），项属性 id/name | - |
+| accounts | 类型：List，账号 | [] |
+| nodes | 类型：List[Object]，节点，项属性 id/name | - |
+| assets | 类型：List[Object]，资产，项属性 id/name | - |
+| backup_type | 类型：Object，备份类型（value/label） | email |
+| obj_recipients_part_one | 类型：List[Object]，对象存储收件人（第一部分），项属性 id/name | - |
+| obj_recipients_part_two | 类型：List[Object]，对象存储收件人（第二部分），项属性 id/name | - |
+| zip_encrypt_password | 类型：String，压缩文件加密密码（writeOnly），可空 | - |
+| is_active | 类型：Boolean，是否激活 | true |
+| is_password_divided_by_email | 类型：Boolean，邮件发送密码是否拆分 | true |
+| is_password_divided_by_obj_storage | 类型：Boolean，对象存储密码是否拆分 | true |
 
 > 注：带 * 的参数为必填项。
 - **返回参数:**
@@ -140,7 +167,10 @@ if __name__ == "__main__":
 | is_periodic | 类型：Boolean，是否定时执行 |  |
 | interval | 类型：Int，周期执行 | 默认24 |
 | crontab | 类型：String，定时执行Crontab表达式 |  |
-| recipients | 类型：List[Object]，收件人 |  |
+| recipients_part_one | 类型：List[Object]，收件人（第一部分），项属性 id/name |  |
+| recipients_part_two | 类型：List[Object]，收件人（第二部分），项属性 id/name |  |
+| obj_recipients_part_one | 类型：List[Object]，对象存储收件人（第一部分），项属性 id/name |  |
+| obj_recipients_part_two | 类型：List[Object]，对象存储收件人（第二部分），项属性 id/name |  |
 | types | 类型：String[]，资产类型 | linux, windows, unix, other, general, switch, "router", "firewall", "mysql", "mariadb", "postgresql", "oracle", "sqlserver", "clickhouse", "mongodb", "redis", "public", "private", "k8s", "website" |
 | date_created | 类型：String[date]，创建时间 |  |
 | date_updated | 类型：String[date]，更新时间 |  |
@@ -162,8 +192,8 @@ curl -X POST 'https://localhost/api/v1/accounts/account-backup-plans/' \
         "is_periodic": true,
         "interval": 24,
         "name": "test",
-        "recipients": [{
-            "pk": "d1a02c44-e40b-41ac-884a-c44f3c664209"
+        "recipients_part_one": [{
+            "id": "d1a02c44-e40b-41ac-884a-c44f3c664209"
         }],
         "crontab": "0 0 * * *",
         "comment": "abcs"
@@ -223,8 +253,33 @@ if __name__ == "__main__":
     create_account_backup_plans()
 ```
 
+- **使用案例：**
 
-## /api/v1/accounts/account-backup-plans/{id}
+场景：等保合规要求数据库账号密码定期离线留存，为生产环境的 MySQL、PostgreSQL 数据库账号创建每天凌晨 2 点自动备份的策略，并将备份文件密码拆分后分别发送给两位管理员，降低单人泄露风险。
+
+```sh
+curl -X POST 'https://localhost/api/v1/accounts/account-backup-plans/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "name": "生产数据库账号备份",
+        "types": ["mysql", "postgresql"],
+        "is_periodic": true,
+        "crontab": "0 2 * * *",
+        "recipients_part_one": [{
+            "id": "d1a02c44-e40b-41ac-884a-c44f3c664209"
+        }],
+        "recipients_part_two": [{
+            "id": "5f8c1e33-9a27-4b06-8d12-3e7a90b1c554"
+        }],
+        "is_password_divided_by_email": true,
+        "comment": "等保合规：生产库账号每日离线备份"
+    }'
+```
+
+
+## /api/v1/accounts/account-backup-plans/{id}/
 ### DELETE
 - **描述：**
 删除账号备份策略
@@ -237,7 +292,7 @@ if __name__ == "__main__":
 | X-JMS-ORG       | 00000000-0000-0000-0000-000000000002    | 00000000-0000-0000-0000-000000000002 为组织 ID，此 id号为默认组织：Default，留空则默认为 Default 组织。 |
 | Content-Type    | application/json                        | 输出为json格式                                                       |
 
-- **请求体参数（Body）：**  
+- **路径参数（Path）：**  
 
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
@@ -296,92 +351,12 @@ if __name__ == "__main__":
     delete_account_backup_plans()
 ```
 
-## /api/v1/accounts/account-backup-plan-executions/
+- **使用案例：**
 
-### POST
-- **描述：**
-执行账号备份策略
+场景：测试环境资产已整体下线迁移，原为其配置的"测试环境账号备份"策略不再需要，运维人员先通过 GET 接口按名称查到该策略 ID 后将其删除，避免继续产生无效的备份邮件。
 
-
-- **请求头（Headers）：**  
-
-| 键              | 值                                      | 备注                                                                 |
-|-----------------|-----------------------------------------|----------------------------------------------------------------------|
-| Authorization   | Bearer b96810faac725563304dada8c323c4fa061863d4 | b96810faac725563304dada8c323c4fa061863d4 为管理员的token 信息。       |
-| X-JMS-ORG       | 00000000-0000-0000-0000-000000000002    | 00000000-0000-0000-0000-000000000002 为组织 ID，此 id号为默认组织：Default，留空则默认为 Default 组织。 |
-| Content-Type    | application/json                        | 输出为json格式               
-
-- **请求体参数（Body）：**  
-
-| 参数名 | 描述 | 默认值 |
-| --- | --- | --- |
-| plan* | 类型：String，备份策略ID | - |
-
-> 注：带 * 的参数为必填项。
-- **返回参数：**
-
-| 字段名称 | 字段描述 | 备注 |
-| --- | --- | --- |
-| task | 类型：String，任务id |  |
-
-**请求示例**
-
-**CURL**
 ```sh
-curl -X POST 'https://localhost/api/v1/accounts/account-backup-plan-executions/' \
-    -H 'Content-Type: application/json' \
-    -H 'Authorization: Bearer b96810faac725563304dada8c323c4fa061863d4' \
-    -H 'X-JMS-ORG: 00000000-0000-0000-0000-000000000002' \
-    -d '{
-        "plan": "37e4c30a-71ea-4b58-91f3-a692715dcf99"
-    }'
-```
-
-**Python**
-```python
-# Python 示例
-
-import requests
-import json
-from datetime import datetime
-from httpsig.requests_auth import HTTPSignatureAuth
-
-API_URL     = "https://localhost"
-KEY_ID      = "your id"
-KEY_SECRET  = "your secret"
-ORG_ID      = "your org id"
-PLAN_ID     = "your plan id"
-
-def account_backup_plans_executions():
-    url = f"{API_URL}/api/v1/accounts/account-backup-plan-executions/"
-    gmt_form = "%a, %d %b %Y %H:%M:%S GMT"
-    signature_headers = ['(request-target)', 'accept', 'date']
-    headers = {
-        "Content-Type": "application/json",
-        "X-JMS-ORG": ORG_ID,
-        "Date": datetime.utcnow().strftime(gmt_form)
-    }
-    auth = HTTPSignatureAuth(
-        key_id = KEY_ID, secret = KEY_SECRET,
-        algorithm = "hmac-sha256",
-        headers = signature_headers
-    )
-
-    data = {
-        "plan": PLAN_ID
-    }
-
-    try:
-        response = requests.post(
-            url, auth = auth, headers = headers,
-            data = json.dumps(data),
-            verify = False
-        )
-        response.raise_for_status()
-        print(f"账号备份计划已执行")
-    except Exception as e:
-        print(f"错误:{e}")
-
-if __name__ == "__main__":
-    account_backup_plans_executions()
+curl -X DELETE 'https://localhost/api/v1/accounts/account-backup-plans/8c6a5b12-4d3e-4f7a-9b08-2e15d6c73a40/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
 ```

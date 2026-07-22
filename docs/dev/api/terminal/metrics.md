@@ -100,4 +100,18 @@ if __name__ == "__main__":
 	get_terminal_components_metrics()
 ```
 
+- **使用案例：**
+
+场景：运维监控平台每分钟定时巡检 JumpServer 各终端组件的健康状态，提取出现离线（offline）或严重异常（critical）实例的组件类型及主机名，一旦发现 koko、lion 等接入组件掉线立即推送告警。
+
+```sh
+curl -s -X GET \
+	-H 'Authorization: Bearer <token>' \
+	-H 'X-JMS-ORG: <组织ID>' \
+	https://example/api/v1/terminal/components/metrics/ \
+	| jq '[.[] | select((.offline | length > 0) or (.critical | length > 0)) | {type, offline, critical}]'
+```
+
+> 完整集成场景可参考：[实战案例：健康检查与监控告警集成](../examples/monitor_integration.md)
+
 

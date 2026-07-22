@@ -30,7 +30,7 @@ ORG_ID = '00000000-0000-0000-0000-000000000002'
 def get_token(jms_url, username, password):
     url = jms_url + '/api/v1/authentication/auth/'
     data = {"username": username, "password": password}
-    r = requests.post(url, data=data)
+    r = requests.post(url, json=data)
     r.raise_for_status()
     return r.json()['token']
 
@@ -53,3 +53,19 @@ if __name__ == '__main__':
 
 - Token 有过期时间，需定期重新获取。
 - 避免将 Token 硬编码在公开仓库。
+
+- **使用案例：**
+
+场景：每日巡检脚本运行前，使用专用运维账号 ops-robot 换取一次性 Token，并立即携带该 Token 调用接口验证可用性。
+
+```sh
+# 1. 用专用账号换取一次性 Token
+TOKEN=$(curl -s -X POST https://jms.example.com/api/v1/authentication/auth/ \
+     -H 'Content-Type: application/json' \
+     -d '{"username": "ops-robot", "password": "Robot@2026"}' | jq -r '.token')
+
+# 2. 携带 Token 调用接口，验证认证是否生效
+curl -X GET https://jms.example.com/api/v1/users/users/ \
+     -H 'Authorization: Bearer <token>' \
+     -H 'X-JMS-ORG: <组织ID>'
+```

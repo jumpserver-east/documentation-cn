@@ -1,9 +1,11 @@
-## 1 服务端口说明
+# 服务端口说明
+
+## 1 端口说明
 
 JumpServer 服务涉及到的端口分为三个部分：
 
 - JumpServer 服务器端口；
-- 数据库服务器端口；（当 PostgreSQL 与 Redis 为内置时，该模块取消）
+- 数据库服务器端口（当 PostgreSQL 与 Redis 为内置数据库时，无需单独开放）；
 - 被纳管的资产端口；
 
 ### 1.1 JumpServer 服务器端口
@@ -15,6 +17,7 @@ JumpServer 部署成功后，需要开放的端口如下：
 | 80、443 | Web 端访问，http、https 服务端口 | http、https 服务端口 | 需要 |
 | 2222 | SSH（堡垒机用户） | koko 服务组件默认端口，如果启用 SSH Client 方式访问堡垒机及登录资产，则需要开启 | 按需 |
 | 3389 | Windows 资产的 RDP 方式连接端口 | Razor 服务组件默认端口，如果需要 RDP 方式访问 Windows 资产，则需要开启 | 按需 |
+| 3390 | Windows 2003 等老版本资产的 RDP 方式连接端口 | XRDP 服务组件默认端口，如果启用 XRDP 组件（`XRDP_ENABLED=1`），则需要开启 | 按需 |
 | 33061、33062、54320、63790、14330、15210 | Magnus 服务端口 | Magnus 服务组件默认端口，如果启用 DB 组件，则需要开启 | 按需 |
 
 ### 1.2 数据库服务器端口
@@ -23,8 +26,8 @@ JumpServer 部署成功后，需要开放的端口如下：
 
 | 端口 | 作用 | 说明 | 是否必须开通 |
 | :--- | :--- | :--- | :--- |
-| 3306 | 数据库服务端口（MySQL） | MySQL 服务使用，存放 JumpServer 服务数据 | 是 |
-| 5432 | 数据库服务端口（PostgreSQL） | PostgreSQL 服务使用，存放 JumpServer 服务数据 | 是 |
+| 3306 | 数据库服务端口（MySQL） | MySQL 服务使用，存放 JumpServer 服务数据 | 与 5432 二选一（根据 `DB_ENGINE` 实际使用的数据库类型开放） |
+| 5432 | 数据库服务端口（PostgreSQL） | PostgreSQL 服务使用，存放 JumpServer 服务数据 | 与 3306 二选一（根据 `DB_ENGINE` 实际使用的数据库类型开放） |
 | 6379 | Redis 服务端口 | Redis 服务使用，存放 JumpServer 缓存数据 | 是 |
 
 ### 1.3 资产端口

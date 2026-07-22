@@ -58,7 +58,7 @@
 | SYSLOG_FACILITY | - | SysLog FACILITY |
 | SYSLOG_SOCKTYPE | - | SysLog SockType |
 | PERM_EXPIRED_CHECK_PERIODIC | - | 校验过期的资产授权规则并过期用户授权树的周期 |
-| LANGUAGE_CODE | zh | zh <br> en <br> ja | 语言 |
+| LANGUAGE_CODE | zh <br> en <br> ja | 语言 |
 | TIME_ZONE | - | 时区 |
 | SESSION_COOKIE_SECURE | true <br> false | 用户 Session Cookie 安全模式，开启后只允许在 https 协议下发送 |
 | CSRF_COOKIE_SECURE | true <br> false | 用户 CSRF Token 安全模式，开启后只允许在 https 协议下发送 |
@@ -94,7 +94,7 @@
 | ACCESS_KEY_FILE | - | ACCESS KEY 保存的地址, 默认注册后会保存到该文件中 |
 | LOG_LEVEL | DEBUG <br> INFO <br> WARNING <br> ERROR <br> CRITICAL | 日志级别 |
 | SSH_TIMEOUT | - | SSH 连接超时时间(单位=秒) <br> # 如果用户服务器启用了 useDNS 这些参数，有可能登录时间超过 15S，需要修改此参数 |
-| LANGUAGE_CODE | zh | zh <br> en <br> ja | 语言 |
+| LANGUAGE_CODE | zh <br> en <br> ja | 语言 |
 | UPLOAD_FAILED_REPLAY_ON_START | true <br> false | 未上传录像遗留文件，启动时是否上传 |
 | SFTP_SHOW_HIDDEN_FILE | true <br> false | SFTP 是否显示隐藏文件 |
 | REUSE_CONNECTION | true <br> false | 是否复用同一用户的 SSH 连接 |

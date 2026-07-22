@@ -1,3 +1,5 @@
+# 日常基本操作
+
 ## 1 命令行工具 jmsctl
 
 JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同时，JumpServer 支持命令行工具 `jmsctl`。
@@ -9,7 +11,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
 ### 1.1 命令使用格式
 
 - `jmsctl [COMMAND]`
-- `./jmsctl [COMMAND]` (需切换至安装包解压目录下执行)
+- `./jmsctl.sh [COMMAND]` (需切换至安装包解压目录下执行)
 
 ### 1.2 命令参数详解
 | 命令 | 说明 |
@@ -35,7 +37,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     ```ini
     # JumpServer configuration file example.
     # 如果不了解用途可以跳过修改此配置文件, 系统会自动填入
-    # 完整参数文档 https://docs.jumpserver.org/zh/v3/guide/env/
+    # 完整参数文档参考本手册《系统参数说明》章节
 
     ################################## 镜像配置 ###################################
     # 国内连接 docker.io 会超时或下载速度较慢, 开启此选项使用华为云镜像加速
@@ -54,13 +56,13 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # 加密密钥, 迁移请保证 SECRET_KEY 与旧环境一致, 请勿使用特殊字符串
     # (*) Warning: Keep this value secret.
     # (*) 勿向任何人泄露 SECRET_KEY
-    SECRET_KEY=NzhhNzNiNDItNmE0OC0wNTc0LTZlYzYtMzk1Mzk2ZDNhNjQ5  # 系统用来加密解密的key
+    SECRET_KEY=********************************  # 系统用来加密解密的key（此处为示意值，以实际生成为准）
 
     # 组件向 core 注册使用的 token, 迁移请保持 BOOTSTRAP_TOKEN 与旧环境一致,
     # 请勿使用特殊字符串
     # (*) Warning: Keep this value secret.
     # (*) 勿向任何人泄露 BOOTSTRAP_TOKEN
-    BOOTSTRAP_TOKEN=NzhhNzNiNDItNmE0OC0wNTc0    # 其他组件用来向JumpServer注册使用的token
+    BOOTSTRAP_TOKEN=****************    # 其他组件用来向JumpServer注册使用的token（此处为示意值，以实际生成为准）
 
     # 日志等级 INFO, WARN, ERROR
     LOG_LEVEL=ERROR  # 日志级别，可以调整为DEBUG模式，输入更详细的日志信息，需注意产生的日志大小
@@ -77,20 +79,20 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # 外置数据库需要输入正确的数据库信息, 内置数据库系统会自动处理
     #
     DB_ENGINE=postgresql  # 指定数据库类型，可选mysql/postgresql
-    DB_HOST=postgresql  # 数据库的连接地址，当地址为postgresql时。默认拉起PostgreSQL容器。
+    DB_HOST=postgresql  # 数据库的连接地址，当地址为 postgresql 时，默认拉起 PostgreSQL 容器
     DB_PORT=5432   # 数据库的连接端口
     DB_USER=postgres    # 数据库的连接用户
-    DB_PASSWORD=1a703974685f00c6622fa5ea87  # 数据库的连接用户密码
+    DB_PASSWORD=********************  # 数据库的连接用户密码（此处为示意值，以实际生成为准）
     DB_NAME=jumpserver     # 数据库的连接数据库，即写入JumpServer数据的数据库
 
-    # 如果外置 MySQL 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v3/installation/security_setup/mysql_ssl/
+    # 如果外置 MySQL 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v4/installation/security_setup/mysql_ssl/
     # DB_USE_SSL=true
 
     ################################# Redis 配置 ##################################
     # 外置 Redis 需要请输入正确的 Redis 信息, 内置 Redis 系统会自动处理
-    REDIS_HOST=redis  # Redis数据库的连接地址，当地址为Redis时，默认拉起Redis容器。
+    REDIS_HOST=redis  # Redis 数据库的连接地址，当地址为 redis 时，默认拉起 Redis 容器
     REDIS_PORT=6379  # Redis数据库的连接端口
-    REDIS_PASSWORD=NzhhNzNiNDItNmE0OC0wNTc0LT   # Redis数据库的连接密码
+    REDIS_PASSWORD=****************   # Redis数据库的连接密码（此处为示意值，以实际生成为准）
 
     # 如果使用外置 Redis Sentinel, 请手动填写下面内容
     # REDIS_SENTINEL_HOSTS=mymaster/192.168.100.1:26379,192.168.100.1:26380,192.168.100.1:26381
@@ -98,7 +100,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # REDIS_PASSWORD=your_redis_password
     # REDIS_SENTINEL_SOCKET_TIMEOUT=5
 
-    # 如果外置 Redis 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v3/installation/security_setup/redis_ssl/
+    # 如果外置 Redis 需要开启 TLS/SSL 连接, 参考 https://docs.jumpserver.org/zh/v4/installation/security_setup/redis_ssl/
     # REDIS_USE_SSL=true
 
     ################################## 访问配置 ###################################
@@ -106,7 +108,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     HTTP_PORT=80    # JumpServer的Web界面访问端口
 
     ################################# HTTPS 配置 #################################
-    # 参考 https://docs.jumpserver.org/zh/v3/installation/proxy/ 配置
+    # 参考 https://docs.jumpserver.org/zh/v4/installation/proxy/ 配置
     # HTTPS_PORT=443
     # SERVER_NAME=your_domain_name
     # SSL_CERTIFICATE=your_cert
@@ -133,7 +135,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     # DOMAINS="demo.jumpserver.org:443"
     # DOMAINS="172.17.200.191:80"
     # DOMAINS="demo.jumpserver.org:443,172.17.200.191:80"
-    DOMAINS="10.1.12.47:80"
+    DOMAINS="192.168.1.100:80"
 
     # 配置不需要启动的组件, 默认所有组件都会开启, 如果不需要某个组件可以通过设置 {组件名称}_ENABLED 为 0 关闭
     # CORE_ENABLED=0
@@ -168,7 +170,7 @@ JumpServer 默认的安装脚本位于 `<安装包解压路径>/jmsctl.sh`。同
     USE_LB=1
 
     # 当前运行的 JumpServer 版本号, 安装和升级完成后自动生成
-    CURRENT_VERSION=v4.10.6
+    CURRENT_VERSION={{ jumpserver.tag }}
     ```
 
 > 其他参数（默认参数或其他可自行添加的参数）请参考：[系统参数说明](env.md)
@@ -190,6 +192,57 @@ JumpServer 在运行过程中，修改其他配置文件中的所有参数，均
 如需要在 JumpServer 运行过程中更改上述文件中的内容，需要通过 `jmsctl restart` 命令重启 JumpServer 服务。
 
 > 注意:数据库更改操作建议提前备份数据。
+
+### 2.4 配置与更换 HTTPS 证书
+
+#### 首次开启 HTTPS
+
+1. 将证书文件上传至 `/opt/jumpserver/config/nginx/cert/` 目录（该目录为默认映射目录，不可修改）。证书文件一般命名为 `server.crt`，私钥文件命名为 `server.key`，文件名需与配置文件中填写的名称保持一致；
+
+2. 停止 JumpServer 服务：
+
+    ```bash
+    jmsctl stop
+    ```
+
+3. 修改配置文件 `/opt/jumpserver/config/config.txt` 中的 HTTPS 配置段，取消注释并按实际情况填写：
+
+    ```ini
+    HTTPS_PORT=443
+    SERVER_NAME=your_domain_name   # 替换为实际使用的域名或 IP 地址
+    SSL_CERTIFICATE=server.crt
+    SSL_CERTIFICATE_KEY=server.key
+    ```
+
+4. 启动 JumpServer 服务并验证：
+
+    ```bash
+    jmsctl start
+    # 检查 jms_web 容器已映射 443 端口
+    docker ps -a
+    ```
+
+    浏览器通过 `https://` 方式访问 JumpServer 登录页，无安全风险提示即证书生效。
+
+#### 证书到期更换
+
+新证书与旧证书使用相同文件名时，`config.txt` 无需修改，可在不停止 JumpServer 服务的情况下平滑更换：
+
+```bash
+# 1. 进入证书目录，备份旧证书
+cd /opt/jumpserver/config/nginx/cert/
+mv server.crt server.crt.backup
+mv server.key server.key.backup
+
+# 2. 上传新证书至该目录，并重命名为与配置文件一致的名称
+mv <新证书文件>.crt server.crt
+mv <新私钥文件>.key server.key
+
+# 3. 进入 web 容器平滑重载 nginx
+docker exec -it jms_web nginx -s reload
+```
+
+刷新浏览器页面，查看证书信息已更新即完成更换。
 
 ## 3 数据库备份
 
@@ -222,6 +275,34 @@ JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需
     pg_dump -U $登录用户 -h localhost -d jumpserver -f jumpserver-$(date +"%Y-%m-%d").dump
     ```
 
+### 3.3 定时自动备份
+
+生产环境建议通过 crontab 定时任务实现数据库自动备份，避免遗漏手动备份。
+
+```bash
+# 编辑当前用户的定时任务
+crontab -e
+```
+
+添加以下内容（备份频率与保留天数请结合业务场景调整）：
+
+```bash
+# 每日凌晨 2 点自动备份 JumpServer 数据库（jmsctl 的绝对路径可通过 which jmsctl 确认）
+0 2 * * * /usr/local/bin/jmsctl backup_db >> /var/log/jmsctl_backup.log 2>&1
+
+# 每日凌晨 3 点清理 30 天前的旧备份文件（备份目录以实际 VOLUME_DIR 为准）
+0 3 * * * find /data/jumpserver/db_backup/ -name "*.sql" -mtime +30 -delete
+
+# 每周日凌晨 4 点备份核心配置文件目录
+0 4 * * 0 tar -czf /data/jumpserver/db_backup/jumpserver-config-$(date +\%F).tar.gz /opt/jumpserver/config/
+```
+
+**备份策略建议：**
+
+- 备份文件默认保存在本机 `/data/jumpserver/db_backup/` 目录下，为防止服务器整机故障导致备份与数据同时丢失，建议将备份文件定期同步至异机（如通过 `scp`/`rsync` 同步至备份服务器，或上传至对象存储）；
+- 定期（如每季度）使用备份文件进行恢复演练，确认备份文件可用；
+- 除数据库外，`/opt/jumpserver/config/` 目录（含 `config.txt`、证书等）也需纳入备份范围。
+
 ## 4 数据库恢复
 
 当数据库节点宕机、升级失败或其他场景需要回滚数据库时，可参考以下操作。
@@ -233,20 +314,24 @@ JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需
 !!! tip ""
     ```bash
     jmsctl restore_db <backup_file_path>  
-    # 文件路径参数无法使用相对路径。被封文件默认位置在 /data/jumpserver/db_backup 目录下。
+    # 文件路径参数无法使用相对路径。备份文件默认位置在 /data/jumpserver/db_backup 目录下。
     ```
 
 ### 4.2 手动恢复命令
-#### MySQL 单节点数据库回滚
 
-> 注：内置数据库需要进入容器执行
+> 注：
+>
+> 1. 手动恢复主要适用于外置数据库场景；内置数据库场景建议优先使用 `jmsctl restore_db` 命令恢复（见 4.1）。
+> 2. 内置数据库如需手动恢复，执行 `jmsctl stop` 后数据库容器也会停止，需先单独启动数据库容器（内置 PostgreSQL 为 `docker start jms_postgresql`，内置 MySQL 为 `docker start jms_mysql`），再进入容器执行恢复命令。
+
+#### MySQL 单节点数据库回滚
 
 !!! tip ""
     ```bash
-    # 1. 停止 JumpServer 服务
+    # 1. 停止 JumpServer 服务（在 JumpServer 节点执行，避免恢复期间数据写入）
     jmsctl stop
     
-    # 2. 恢复数据库
+    # 2. 恢复数据库（在数据库服务器上执行；内置数据库需进入容器执行）
     mysql -u$登录用户 -p$登录用户密码 jumpserver < /path/to/backup/jumpserver-YYYY-MM-DD.sql
     
     # 3. 启动 JumpServer 服务
@@ -255,14 +340,12 @@ JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需
 
 #### PostgreSQL 单节点数据库回滚
 
-> 注：内置数据库需要进入容器执行
-
 !!! tip ""
     ```bash
-    # 1. 停止 JumpServer 服务
+    # 1. 停止 JumpServer 服务（在 JumpServer 节点执行，避免恢复期间数据写入）
     jmsctl stop
     
-    # 2. 恢复数据库
+    # 2. 恢复数据库（在数据库服务器上执行；内置数据库需进入容器执行）
     psql -U $登录用户 -h localhost -d jumpserver -f /path/to/backup/jumpserver-YYYY-MM-DD.dump
     
     # 3. 启动 JumpServer 服务
@@ -273,5 +356,56 @@ JumpServer 运行中，为防止 JumpServer 系统故障导致数据丢失，需
 !!! info "企业版客户如果数据库架构复杂，建议在企业客户支持群中联系客户成功团队获取恢复帮助。"
 
 需要根据具体的数据库集群架构，参考对应数据库的集群恢复方案进行操作。
+
+## 5 磁盘空间管理
+
+JumpServer 长期运行后，会话录像、任务日志、数据库备份等文件会持续占用磁盘空间。磁盘写满会导致数据库写入失败、录像无法保存等故障，需定期检查并清理。
+
+### 5.1 检查磁盘占用
+
+```bash
+# 查看各挂载点磁盘使用率
+df -h
+
+# 定位持久化目录下占用空间最大的子目录（目录以实际 VOLUME_DIR 为准）
+du -sh /data/jumpserver/* | sort -rh | head -10
+```
+
+**主要空间增长点：**
+
+| 目录 | 内容 | 说明 |
+| :--- | :--- | :--- |
+| `$VOLUME_DIR/core/data/media/` | 会话录像、上传下载文件等 | 随会话数量持续增长，通常是占用空间最大的目录 |
+| `$VOLUME_DIR/core/data/celery/` | 异步任务日志 | 随自动化任务执行持续增长 |
+| `$VOLUME_DIR/core/data/logs/` 及各组件 `data/logs/` | 系统与组件日志 | 日志级别为 DEBUG 时增长明显加快 |
+| `$VOLUME_DIR/db_backup/` | 数据库备份文件 | 每次备份新增一份文件，需定期清理旧备份 |
+| `$VOLUME_DIR/postgresql/` | 内置数据库持久化文件 | 随业务数据量增长，**禁止直接删除** |
+
+### 5.2 清理策略
+
+1. **配置定期自动清理**：登录 Web 控制台，在系统设置的定期清理配置中设置登录日志、操作日志、任务日志、会话录像等数据的保留天数，由系统到期自动清理；
+2. **清理过期数据库备份**：参考 [3.3 定时自动备份](#33-定时自动备份) 中的定时清理示例，按保留策略删除旧备份文件；
+3. **录像转存**：如需长期保留会话录像，建议配置对象存储（如 S3、OSS 等）转存录像文件，降低本机磁盘压力（相关参数见 [系统参数说明](env.md) 中的 `SERVER_REPLAY_STORAGE`）；
+4. **磁盘监控告警**：建议对 JumpServer 节点磁盘使用率配置监控告警（如使用率超过 80% 时告警），提前介入处理。
+
+!!! warning "注意"
+    - 清理会话录像前，请先确认所在组织的审计合规要求（录像保留期限），避免误删仍需留存的审计数据。
+    - 请勿直接删除 `postgresql/`、`redis/` 等数据库持久化目录下的文件。
+
+## 6 日常巡检
+
+建议运维人员按以下清单对 JumpServer 环境进行例行巡检，及时发现潜在问题。巡检频率可结合业务重要程度调整。
+
+| 巡检项 | 建议频率 | 检查方式 | 关注点 |
+| :--- | :--- | :--- | :--- |
+| 容器运行状态 | 每日 | `jmsctl status` 或 `docker ps -a` | 所有容器状态为 Up/healthy，无反复重启的容器 |
+| 磁盘空间 | 每日 | `df -h` | 使用率低于 80%，超出时参考 [磁盘空间管理](#5-磁盘空间管理) 处理 |
+| 内存与 CPU | 每日 | `free -h`、`top` | 无内存耗尽、无组件持续高负载 |
+| 数据库备份 | 每日 | `ls -lh /data/jumpserver/db_backup/` | 备份文件按备份计划正常生成，大小无异常 |
+| 在线会话 | 每日 | Web 控制台的在线会话页面 | 无长时间未释放或来源异常的会话 |
+| 核心日志 | 每周 | 查看 core 组件日志（参考《日志查看操作》） | 无持续出现的 ERROR 级别报错 |
+| Web 访问验证 | 每周 | 浏览器访问 JumpServer 登录页 | 页面正常打开，HTTPS 证书未临近过期 |
+| 服务器时间 | 每周 | `timedatectl` | NTP 时间同步正常（MFA 验证码校验依赖准确的系统时间） |
+| 资产连接抽检 | 每周 | 抽取若干常用资产测试连接 | SSH/RDP 等方式可正常登录资产 |
 
 

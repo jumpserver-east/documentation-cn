@@ -4,8 +4,8 @@
 
 JumpServer 堡垒机采用微服务架构设计。JumpServer 服务由 Docker 承载，不同的功能模块在不同的容器上面运行；通过 Docker-Compose 以及 jmsctl 管理脚本编排整个 JumpServer 服务的运行与维持不同功能模块之间的依赖关系。
 
-!!! tips ""
-    企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar`  [jumpserver-ee-系统版本-系统架构]
+!!! tip ""
+    企业版安装包格式：`jumpserver-ee-{{ jumpserver.tag }}-x86_64.tar.gz`  [jumpserver-ee-系统版本-系统架构]
 
 ## 2 依赖组件
 
@@ -31,7 +31,7 @@ JumpServer 堡垒机依赖组件如下：
 
 ## 3 文件夹用途介绍
 
-JumpServer 的默认安装路径为 `/data/jumpserver`，具体的环境安装路径可通过查看配置文件获取。具体命令如下：
+JumpServer 的安装配置目录为 `/opt/jumpserver`，数据持久化目录（VOLUME_DIR）默认为 `/data/jumpserver`。具体环境的持久化目录可通过查看配置文件获取。具体命令如下：
 
 ```bash
 cat /opt/jumpserver/config/config.txt | grep VOLUME_DIR
@@ -43,7 +43,7 @@ cat /opt/jumpserver/config/config.txt | grep VOLUME_DIR
 | :--- | :--- |
 | `/opt/jumpserver/config/` | 该目录下保存了各个组件的配置信息。最主要的配置信息为该目录下的 `config.txt` 文件，该文件中保存的是 JumpServer 的核心配置。 |
 | `$VOLUME_DIR/core/data/celery/` | 该目录下保存的是异步任务 ansible 队列下的任务日志。此目录下有两层子目录。日志文件最终会以任务 ID 的前两位选择相应的子目录进行存放，日志文件最终以 ID+.log 命名。<br>例如：任务 ID 为：<br>`6a942d0a-52ab-4704-beae-137465ca3eca`；<br>该任务生成的日志文件为：<br>`6a942d0a-52ab-4704-beae-137465ca3eca.log`；<br>存放的路径为：<br>`$VOLUME_DIR/core/data/celery/6/a/` 目录下； |
-| `$VOLUME_DIR/core/data/logs/` | 该目录下保存的是 JumpServer 的日志文件。日志文件详细介绍如下：<br>- `ansible.log`：该日志是 ansible 执行自动化任务产生的日志（测试资产可连接性、更新硬件信息、推送账户、执行改密计划等）；<br>- `beat.log`：该日志是定时任务的日志；<br>- `celery_ansible.log`：该日志是异步任务 ansible 队列下的任务日志；<br>- `celery_default.log`：该日志是异步任务默认队列下的任务日志；<br>- `celery.log`：该日志是 celery 组件的日志；<br>- `daphne.log`：该日志是 Django 的一部分，主要用来支持 websocket；<br>- `drf_exception.log`：该日志是使用 DRF 框架抛出的异常信息；<br>- `flower.log`：该日志是作业中心的任务监控组件日志；<br>- `gunicorn.log`：该日志是用来记录 API 请求的日志；<br>- `jumpserver.log`：该日志是 JumpServer 的总日志。 |
+| `$VOLUME_DIR/core/data/logs/` | 该目录下保存的是 JumpServer 的日志文件。日志文件详细介绍如下：<br>- `ansible.log`：该日志是 ansible 执行自动化任务产生的日志（测试资产可连接性、更新硬件信息、推送账户、执行改密计划等）；<br>- `beat.log`：该日志是定时任务的日志；<br>- `celery_ansible.log`：该日志是异步任务 ansible 队列下的任务日志；<br>- `celery_default.log`：该日志是异步任务默认队列下的任务日志；<br>- `celery.log`：该日志是 celery 组件的日志；<br>- `daphne.log`：该日志是 Django 的一部分，主要用来支持 websocket；<br>- `drf_exception.log`：该日志是使用 DRF 框架抛出的异常信息；<br>- `flower.log`：该日志是作业中心的任务监控组件日志；<br>- `gunicorn.log`：该日志是用来记录 API 请求的日志；<br>- `jumpserver.log`：该日志是 JumpServer 的总日志；<br>- `unexpected_exception.log`：该日志是 JumpServer 报错信息日志。 |
 | `$VOLUME_DIR/core/data/media/` | 该目录下存放的是远程应用源文件、录像文件、文件上传下载的文件以及自定义的 LOGO 文件等。 |
 | `$VOLUME_DIR/core/data/ops/` | 该目录下存放的是用户上传的 playbook 文件。 |
 | `$VOLUME_DIR/core/data/static/` | 该目录下存放的是 JumpServer 运行过程中需要的静态文件，例如：img、CSS、js 文件等。 |

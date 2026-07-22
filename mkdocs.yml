@@ -58,10 +58,9 @@ nav:
     - accounts: dev/api/accounts/accounts.md
     - accountsecrets: dev/api/accounts/accountsecrets.md
   - PAM:
-    - integration-applications: dev/api/pam/intergration-application.md  
-    - account_backup:  dev/api/pam/account_backup.md
-    - change-secret-automations:  dev/api/pam/changepwd.md
-    - account-backup-plans:  dev/api/pam/account_backup.md
+    - integration-applications: dev/api/pam/integration-application.md
+    - change-secret-automations: dev/api/pam/changepwd.md
+    - account-backup-plans: dev/api/pam/account_backup.md
   - 工单: 
     - ticket: dev/api/ticket/ticket.md
   - 健康检查: 

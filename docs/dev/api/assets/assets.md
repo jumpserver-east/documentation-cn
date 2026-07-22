@@ -17,10 +17,10 @@
 | 参数名 | 描述 | 默认值 |
 | --- | --- | --- |
 | name* | 类型：String，名称 | - |
-| addrs* | 类型：String，IP地址 | - |
-| platform* | 类型：String，系统平台，示例值：1（代表Linux）、5（代表Windows） | - |
-| nodes* | 类型：String[]，节点 | - |
-| protocols | 类型：String[]，协议/端口，参数格式示例：`{"name": "ssh", "port": 22}` | - |
+| address* | 类型：String，IP地址 | - |
+| platform* | 类型：Object，系统平台，含 id/name/type 属性的平台对象，参数格式示例：`{"id": 1}`，平台 ID 示例值：1（代表Linux）、5（代表Windows） | - |
+| nodes | 类型：String[]，节点 | [] |
+| protocols | 类型：Object[]，协议/端口，参数格式示例：`{"name": "ssh", "port": 22}` | - |
 | labels | 类型：String[]，标签 | - |
 | is_active | 类型：Boolean，激活状态 | true |
 | accounts | 类型：String[]，账号信息 | - |
@@ -33,12 +33,12 @@
 | --- | --- | --- |
 | id | 类型：String，id |  |
 | name | 类型：String，名称 |  |
-| addrs | 类型：String，ip |  |
+| address | 类型：String，ip |  |
 | comment | 类型：String，备注 |  |
 | platform | 类型：String，系统平台 |  |
 | nodes | 类型：String[]，节点 |  |
 | labels | 类型：String[]，标签 |  |
-| protocols | 类型：String，协议/端口 |  |
+| protocols | 类型：Object[]，协议/端口，元素格式示例：`{"name": "ssh", "port": 22}` |  |
 | nodes_display | 类型：String[]，资产节点名称 |  |
 | category | 类型：String，类别 |  |
 | type | 类型：String，类型 |  |
@@ -59,9 +59,9 @@ curl -X POST 'https://localhost/api/v1/assets/hosts/' \
     -d '{
         "name":"test_create_asset",
         "address":"192.168.1.1",
-        "platform": {"pk":1},
+        "platform": {"id":1},
         "nodes": [
-            {"pk":"1ecb988f-ded3-4b57-bc8f-808467abbe2f"}
+            {"id":"1ecb988f-ded3-4b57-bc8f-808467abbe2f"}
         ]
     }'
 ```
@@ -98,9 +98,9 @@ def create_assets():
     data = {
         "name":"test_create_asset",
         "address":"192.168.1.1",
-        "platform": {"pk":1},
+        "platform": {"id":1},
         "nodes": [
-            {"pk": NODE_ID}
+            {"id": NODE_ID}
         ]
     }
 

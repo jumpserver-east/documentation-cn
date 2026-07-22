@@ -36,7 +36,7 @@
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：list，密码策略 | email / custom 等 |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 | true表示系统内部账号 |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -132,13 +132,13 @@ if __name__ == "__main__":
 | wechat | 类型：string，微信 | - |
 | phone | 类型：string，手机 | - |
 | groups | 类型：string[]，用户组 ID 列表 | - |
-| password* | 类型：string，密码（当 password_strategy=custom 时必填） | - |
+| password | 类型：string，密码（当 password_strategy=custom 时必填） | - |
 | need_update_password | 类型：boolean，是否下次登录需修改密码 | 默认 false；[true,false] |
 | public_key | 类型：string，SSH 公钥 | - |
-| system_roles* | 类型：object[]/string[]，系统角色 | 元素含 pk ID |
-| org_roles* | 类型：object[]/string[]，组织角色 | 元素含 pk ID |
-| password_strategy | 类型：string，密码策略 | email / custom；email=邮件设置密码 |
-| source | 类型：string，用户来源 | 默认 default；local/ldap/openid/radius/cas/saml2/oauth2/custom |
+| system_roles | 类型：object[]/string[]，系统角色 | 元素含 pk ID |
+| org_roles | 类型：object[]/string[]，组织角色 | 元素含 pk ID |
+| password_strategy | 类型：string，密码策略 | email / custom；email=邮件设置密码；请求中传字符串值（如 "email"/"custom"），响应中返回为 object |
+| source | 类型：string，用户来源 | 默认 local；可选 local/ldap/ldap_ha/openid/radius/cas/saml2/oauth2/wecom/dingtalk/feishu/lark/slack/custom |
 | mfa_level | 类型：integer，MFA 等级 | 0=禁用 1=启用 2=强制 |
 | date_expired | 类型：string(date-time)，用户失效时间 | 例如：2023-02-04T00:54:39.000Z |
 
@@ -164,7 +164,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 | true 表示系统内部账号 |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -306,7 +306,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 |  |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -410,10 +410,10 @@ if __name__ == "__main__":
 | password | 类型：string，密码 | password_strategy=custom 时必填 |
 | need_update_password | 类型：boolean，下次登录需改密 | 默认 false |
 | public_key | 类型：string，SSH 公钥 | - |
-| system_roles* | 类型：object[]/string[]，系统角色 | 元素含 pk |
-| org_roles* | 类型：object[]/string[]，组织角色 | 元素含 pk |
-| password_strategy | 类型：string，密码策略 | email / custom |
-| source | 类型：string，用户来源 | default/local/ldap/... |
+| system_roles | 类型：object[]/string[]，系统角色 | 元素含 pk |
+| org_roles | 类型：object[]/string[]，组织角色 | 元素含 pk |
+| password_strategy | 类型：string，密码策略 | email / custom；请求中传字符串值（如 "email"/"custom"），响应中返回为 object |
+| source | 类型：string，用户来源 | local/ldap/ldap_ha/openid/radius/cas/saml2/oauth2/wecom/dingtalk/feishu/lark/slack/custom |
 | mfa_level | 类型：integer，MFA 等级 | 0=禁用 1=启用 2=强制 |
 | date_expired | 类型：string(date-time)，用户失效时间 | 2023-02-04T00:54:39.000Z |
 
@@ -439,7 +439,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 |  |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -507,11 +507,6 @@ def update_user():
         algorithm = "hmac-sha256",
         headers = signature_headers
     )
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {TOKEN}",
-        "X-JMS-ORG": ORG_ID
-    }
 
     data = {
         "name": "api_test",
@@ -573,7 +568,7 @@ if __name__ == "__main__":
 | public_key | 类型：string，SSH 公钥 |  |
 | system_roles | 类型：object[]/string[]，系统角色 | 全量替换 |
 | org_roles | 类型：object[]/string[]，组织角色 | 全量替换 |
-| password_strategy | 类型：string，密码策略 | email/custom |
+| password_strategy | 类型：string，密码策略 | email/custom；请求中传字符串值（如 "email"/"custom"），响应中返回为 object |
 | source | 类型：string，用户来源 |  |
 | mfa_level | 类型：integer，MFA 等级 | 0/1/2 |
 | date_expired | 类型：string(date-time)，用户失效时间 |  |
@@ -599,7 +594,7 @@ if __name__ == "__main__":
 | groups | 类型：list，用户组 | 对象或ID列表 |
 | system_roles | 类型：list，系统角色 | 默认含“用户”角色 |
 | org_roles | 类型：list，组织角色 | 默认含“组织用户” |
-| password_strategy | 类型：string，密码策略 | email / custom |
+| password_strategy | 类型：object，密码策略 | 形如 {"value":"email","label":"..."}；可为 null，默认 value=email（邮件发送重置链接） |
 | is_service_account | 类型：boolean，是否组件账号 |  |
 | is_valid | 类型：boolean，是否有效 |  |
 | is_expired | 类型：boolean，是否到期 |  |
@@ -740,8 +735,7 @@ def delete_user():
             url, auth = auth, headers = headers
         )
         response.raise_for_status()
-        print("用户删除成功:")
-        print(json.dumps(response.json(), indent=2))
+        print(f"用户删除成功: {response.status_code}")
     except Exception as e:
         print(f"API 请求失败:{e}")
         return None

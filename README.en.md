@@ -1,31 +1,32 @@
-# JumpServer Docs
+# JumpServer API Documentation
 
-- https://docs.jumpserver.org
+This branch maintains only the JumpServer API documentation and its build assets.
 
-[![Python3](https://img.shields.io/badge/python-3.8-green.svg?style=plastic)](https://www.python.org/)
+## Documentation Structure
 
-## Getting Started
+- Chinese API documentation: `docs/dev/api/**/*.md`
+- English API documentation: `docs/dev/api/**/*.en.md`
+- OpenAPI schema: `swagger.yml`
+- MkDocs configuration: `mkdocs.yml`
+
+## Install Dependencies
 
 ```shell
-git clone --depth=1 https://github.com/jumpserver/docs
-cd docs
 pip install -r requirements/requirements.txt
 ```
 
-## Run
+## Local Preview
 
-```bash
+```shell
 mkdocs serve
 ```
 
+The Chinese documentation is served from the root path, and the English documentation is available under `/en/`.
+
 ## Build
 
-```bash
-mkdocs build
+```shell
+mkdocs build --clean
 ```
 
-## Help
-
-```bash
-mkdocs --help
-```
+The build output is written to `site/` by default, with the English site under `site/en/`.

@@ -1,31 +1,32 @@
-# JumpServer Docs
+# JumpServer API 文档
 
-- https://docs.jumpserver.org
+本分支仅维护 JumpServer API 文档及其构建资源。
 
-[![Python3](https://img.shields.io/badge/python-3.8-green.svg?style=plastic)](https://www.python.org/)
+## 文档结构
 
-## 开始
+- 中文 API 文档：`docs/dev/api/**/*.md`
+- 英文 API 文档：`docs/dev/api/**/*.en.md`
+- OpenAPI 定义：`swagger.yml`
+- MkDocs 配置：`mkdocs.yml`
+
+## 安装依赖
 
 ```shell
-git clone --depth=1 https://github.com/jumpserver/docs
-cd docs
 pip install -r requirements/requirements.txt
 ```
 
-## 运行
+## 本地预览
 
-```bash
+```shell
 mkdocs serve
 ```
 
-## 编译
+中文文档使用根路径访问，英文文档使用 `/en/` 路径访问。
 
-```bash
-mkdocs build
+## 构建
+
+```shell
+mkdocs build --clean
 ```
 
-## 帮助
-
-```bash
-mkdocs --help
-```
+构建结果默认输出到 `site/`，英文站点位于 `site/en/`。

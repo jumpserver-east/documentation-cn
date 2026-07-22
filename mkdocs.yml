@@ -170,6 +170,67 @@ plugins:
     - search:
         lang:
           - en
-          - ja
+          - zh
         separator: '[\s\-\.]+'
     - macros
+    - i18n:
+        docs_structure: suffix
+        fallback_to_default: true
+        reconfigure_material: true
+        languages:
+          - locale: zh
+            name: 中文
+            build: true
+            default: true
+          - locale: en
+            name: English
+            build: true
+            site_name: JumpServer API Documentation
+            nav_translations:
+              免责声明: Disclaimer
+              前言: Preface
+              认证方式: Authentication
+              概述: Overview
+              Session 认证: Session Authentication
+              Token 认证: Token Authentication
+              Private Token 认证: Private Token Authentication
+              Access Key 认证: Access Key Authentication
+              用户: Users
+              用户列表: User List
+              用户组: User Groups
+              资产: Assets
+              资产列表: Asset List
+              资产节点: Asset Nodes
+              用户授权资产: Assets Authorized to a User
+              授权: Authorization
+              资产授权: Asset Permissions
+              账号: Accounts
+              账号列表: Account List
+              查询账号密码: Retrieve Account Password
+              PAM: PAM
+              集成应用: Integration Applications
+              改密计划: Password Change Plans
+              账号备份: Account Backup
+              工单: Tickets
+              工单管理: Ticket Management
+              审计: Audits
+              会话记录: Session Records
+              命令记录: Command Records
+              文件传输记录: File Transfer Records
+              作业日志: Job Logs
+              登录日志: Login Logs
+              操作日志: Operation Logs
+              改密日志: Password Change Logs
+              健康检查: Health Check
+              服务健康检查: Service Health Check
+              终端: Terminal
+              组件指标: Component Metrics
+              实战案例: Practical Examples
+              生成用户免密直连资产 URL: Generate Passwordless Direct-Connection URLs
+              对接外部工单系统: Integrate an External Ticket System
+              外部系统申请资产并自动授权: Request and Authorize Assets from an External System
+              外部系统一键审计: One-Click Auditing from an External System
+              用户生命周期自动化: Automate the User Lifecycle
+              免硬编码获取账号密码: Retrieve Account Passwords Without Hard-Coding
+              健康检查与监控集成: Integrate Health Checks and Monitoring
+              审计日志对接 SIEM: Integrate Audit Logs with SIEM

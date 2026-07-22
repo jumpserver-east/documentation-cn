@@ -114,6 +114,19 @@ if __name__ == "__main__":
 }
 ```
 
+- **使用案例：**
+
+场景：CMDB 系统与堡垒机做资产结构对账，先按节点名搜索"生产环境"节点确认其是否已存在，并限制每页返回 20 条以便分页遍历。
+
+```sh
+curl -X GET 'https://localhost/api/v1/assets/nodes/?search=生产环境&limit=20&offset=0' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)
+
 ##  /api/v1/assets/nodes/{id}/children/
 
 ### POST
@@ -213,6 +226,20 @@ if __name__ == "__main__":
     create_children_nodes(NODE_ID, NODE_NAME)
 ```
 
+- **使用案例：**
+
+场景：新业务线"电商中台"上线，运维平台在"生产环境"节点（ID 为 `3728f004-99a2-4fca-9577-84d5ffcf9eff`）下自动创建同名子节点，供后续批量纳管该业务线的服务器。
+
+```sh
+curl -X POST 'https://localhost/api/v1/assets/nodes/3728f004-99a2-4fca-9577-84d5ffcf9eff/children/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{"value":"电商中台"}'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)
+
 ##  /api/v1/assets/nodes/{id}/ 
 
 ### DELETE
@@ -286,3 +313,16 @@ def delete_assets_nodes(node_id):
 if __name__ == "__main__":
     delete_assets_nodes(NODE_ID)
 ```
+
+- **使用案例：**
+
+场景：老旧项目"报表系统"整体下线，其资产已全部迁出，管理员在清理脚本中删除该项目对应的空节点（ID 为 `89c68ef6-7790-4f20-8f8d-fdd76d229b3d`），保持资产树整洁。
+
+```sh
+curl -X DELETE 'https://localhost/api/v1/assets/nodes/89c68ef6-7790-4f20-8f8d-fdd76d229b3d/' \
+    -H 'Content-Type:application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：外部系统申请资产并自动授权](../examples/asset_sync_authorize.md)

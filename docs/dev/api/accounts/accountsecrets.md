@@ -95,3 +95,15 @@ if __name__ == "__main__":
     result = get_account_secret(ACCOUNT_ID)
     print(json.dumps(result, indent = 2, ensure_ascii = False))
 ```
+
+- **使用案例：**
+
+场景：数据库巡检脚本每晚连接 db-mysql-01 执行备份前，先按账号 ID 从 JumpServer 实时取回该资产上 root 账号的密码，避免在脚本中硬编码口令（账号 ID 已提前通过 `/api/v1/accounts/accounts/` 按资产名与用户名过滤查得）。
+
+```sh
+curl -s -X GET 'https://localhost/api/v1/accounts/account-secrets/f3a9c2d1-7b64-4e0a-9c3f-5d8e2a1b6c40/' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' | jq -r '.secret'
+```
+
+> 完整集成场景可参考：[实战案例：外部脚本免硬编码获取账号密码](../examples/secret_retrieval.md)

@@ -123,6 +123,29 @@ if __name__ == "__main__":
     apply_asset_tickets()
 ```
 
+- **使用案例：**
+
+场景：外部 ITSM 系统审批立项后，自动为数据库管理员 zhangsan 在 JumpServer 中发起资产访问申请，申请以同名账号连接生产数据库 mysql-prod-01，授权有效期一周。
+
+```sh
+curl -X POST 'https://localhost/api/v1/tickets/apply-asset-tickets/open/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "title": "zhangsan 申请访问生产数据库 mysql-prod-01",
+        "org_id": "00000000-0000-0000-0000-000000000002",
+        "apply_assets": ["c3d5f1a2-7b8e-4f6d-9a0c-1e2f3a4b5c6d"],
+        "apply_accounts": ["@USER"],
+        "apply_actions": ["connect"],
+        "apply_date_start": "2026-07-22T09:00:00.000Z",
+        "apply_date_expired": "2026-07-29T09:00:00.000Z",
+        "comment": "ITSM 工单 INC-20260722-001 关联申请"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：对接外部工单系统](../examples/external_ticket.md)
+
 ## /api/v1/tickets/tickets/
 
 ### GET
@@ -230,6 +253,19 @@ if __name__ == "__main__":
     search_tickets()
 ```
 
+- **使用案例：**
+
+场景：值班巡检脚本每小时轮询一次所有处于打开状态、待处理的资产登录复核工单，发现积压后通过企业微信提醒值班管理员及时处理。
+
+```sh
+curl -X GET 'https://localhost/api/v1/tickets/tickets/?state=pending&status=open&type=login_asset_confirm' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：对接外部工单系统](../examples/external_ticket.md)
+
 ## /api/v1/tickets/apply-asset-tickets/{id}/approve/
 
 ### PATCH
@@ -329,6 +365,28 @@ if __name__ == "__main__":
     approve_tickets()
 ```
 
+- **使用案例：**
+
+场景：外部工单系统中经理审批通过后，回调 JumpServer 自动放行对应的资产申请工单，仅授予 web-server-01 的连接与文件下载权限，并将授权收紧到本周五下班前失效。
+
+```sh
+curl -X PATCH 'https://localhost/api/v1/tickets/apply-asset-tickets/9f8e7d6c-5b4a-3210-fedc-ba9876543210/approve/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "org_id": "00000000-0000-0000-0000-000000000002",
+        "apply_assets": ["a1b2c3d4-e5f6-7890-abcd-ef1234567890"],
+        "apply_accounts": ["@SPEC"],
+        "apply_actions": ["connect", "download"],
+        "apply_date_start": "2026-07-22 09:00:00",
+        "apply_date_expired": "2026-07-24 18:00:00",
+        "comment": "外部工单 INC-20260722-001 审批通过，自动放行"
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：对接外部工单系统](../examples/external_ticket.md)
+
 ## /api/v1/tickets/flows/
 
 ### GET
@@ -421,6 +479,18 @@ if __name__ == "__main__":
 | date_created | 类型：String(date-time)，创建时间 |  |
 | date_updated | 类型：String(date-time)，更新时间 |  |
 
+- **使用案例：**
+
+场景：对接外部工单系统前的准备阶段，集成脚本分页拉取当前组织已配置的审批流程，核对各类工单的审批级别与审批人是否符合公司安全规范。
+
+```sh
+curl -X GET 'https://localhost/api/v1/tickets/flows/?offset=0&limit=10' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>'
+```
+
+> 完整集成场景可参考：[实战案例：对接外部工单系统](../examples/external_ticket.md)
 
 ## /api/v1/tickets/flows/{id}/
 ### PATCH
@@ -528,3 +598,24 @@ if __name__ == "__main__":
 | created_by | 类型：String，创建人 |  |
 | date_created | 类型：String(date-time)，创建时间 |  |
 | date_updated | 类型：String(date-time)，更新时间 |  |
+
+- **使用案例：**
+
+场景：安全整改要求资产申请类工单必须两级审批，运维平台将该流程的审批级别调整为 2 级，并指定安全组审批人 lisi 作为第二级审批人。
+
+```sh
+curl -X PATCH 'https://localhost/api/v1/tickets/flows/6d5c4b3a-2f1e-0d9c-8b7a-654321fedcba/' \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer <token>' \
+    -H 'X-JMS-ORG: <组织ID>' \
+    -d '{
+        "type": "apply_asset",
+        "approval_level": 2,
+        "rules": [
+            {"users": ["f0e1d2c3-b4a5-6789-0123-456789abcdef"]},
+            {"users": ["1a2b3c4d-5e6f-7a8b-9c0d-e1f2a3b4c5d6"]}
+        ]
+    }'
+```
+
+> 完整集成场景可参考：[实战案例：对接外部工单系统](../examples/external_ticket.md)

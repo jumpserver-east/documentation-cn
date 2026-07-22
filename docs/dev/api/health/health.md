@@ -68,3 +68,17 @@ if __name__ == '__main__':
 	check_health()
 ```
 
+- **使用案例：**
+
+场景：运维团队将 JumpServer 接入 Prometheus/Zabbix 监控平台，探针每分钟调用一次健康检查接口（设置 5 秒超时防止探测阻塞），当返回中 `db_status` 或 `redis_status` 为 false 时触发告警。
+
+```sh
+curl -s --max-time 5 -X GET \
+  -H 'Authorization: Bearer <token>' \
+  -H 'X-JMS-ORG: <组织ID>' \
+  -H 'Accept: application/json' \
+  'https://demo.jumpserver.org/api/v1/health/'
+```
+
+> 完整集成场景可参考：[实战案例：健康检查与监控告警集成](../examples/monitor_integration.md)
+
